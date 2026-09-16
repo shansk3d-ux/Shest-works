@@ -1,0 +1,42 @@
+[project]
+name = "repairlog"
+version = "0.1.0"
+description = "RepairLog: repair tracking for kitchen, household, industrial and restaurant equipment"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.1,<5.2",
+    "psycopg[binary]>=3.2",
+    "django-environ>=0.11",
+    "gunicorn>=23.0",
+    "pillow>=11.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.7",
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "pre-commit>=4.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["manage"]
+
+[tool.setuptools.packages.find]
+include = ["config*", "apps*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+testpaths = ["tests", "apps"]
