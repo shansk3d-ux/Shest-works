@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import environ
+from django.contrib.messages import constants as message_constants
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -26,6 +27,7 @@ INSTALLED_APPS = [
     "apps.parts",
     "apps.knowledge",
     "apps.repairs",
+    "apps.tasks",
 ]
 
 MIDDLEWARE = [
@@ -86,3 +88,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
+
+MESSAGE_TAGS = {
+    message_constants.ERROR: "danger",
+}

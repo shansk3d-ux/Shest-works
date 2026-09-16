@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ task.title }} — RepairLog{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h1 class="h3 mb-1">{{ task.title }}</h1>
+        {% if task.status == "new" %}
+        <span class="badge {% if task.is_overdue %}text-bg-danger{% else %}text-bg-primary{% endif %}">
+            {% if task.is_overdue %}Просрочена{% else %}Новая{% endif %}
+        </span>
+        {% elif task.status == "postponed" %}
+        <span class="badge {% if task.is_overdue %}text-bg-danger{% else %}text-bg-warning{% endif %}">
+            Отложена
+        </span>
+        {% elif task.status == "done" %}
+        <span class="badge text-bg-success">Завершена</span>
+        {% else %}
+        <span class="badge text-bg-secondary">Отменена</span>
+        {% endif %}
+    </div>
+    <a href="{% url 'tasks:update' task.pk %}" class="btn btn-outline-secondary">Изменить</a>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Дата и время</dt>
+    <dd class="col-sm-9">{{ task.due_at }}</dd>
+    {% if task.postponed_until %}
+    <dt class="col-sm-3">Отложено до</dt>
+    <dd class="col-sm-9">{{ task.postponed_until }}</dd>
+    {% endif %}
+    {% if task.description %}
+    <dt class="col-sm-3">Описание</dt>
+    <dd class="col-sm-9">{{ task.description|linebreaksbr }}</dd>
+    {% endif %}
+    {% if task.repair %}
+    <dt class="col-sm-3">Заявка</dt>
+    <dd class="col-sm-9">
+        №{{ task.repair.pk }} — {{ task.repair.equipment }}
+    </dd>
+    {% endif %}
+    <dt class="col-sm-3">Звук уведомления</dt>
+    <dd class="col-sm-9">{{ task.get_notify_sound_display }}</dd>
+</dl>
+
+{% if task.status == "new" or task.status == "postponed" %}
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <form method="post" action="{% url 'tasks:complete' task.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Завершить</button>
+    </form>
+
+    <button type="button" class="btn btn-warning" data-bs-toggle="collapse" data-bs-target="#postponeForm">
+        Отложить
+    </button>
+
+    <form method="post" action="{% url 'tasks:cancel' task.pk %}" onsubmit="return confirm('Точно отменить задачу?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger">Отменить</button>
+    </form>
+</div>
+
+<div class="collapse {% if task.status == "postponed" %}show{% endif %}" id="postponeForm">
+    <form method="post" action="{% url 'tasks:postpone' task.pk %}" class="row g-2 align-items-end mb-4">
+        {% csrf_token %}
+        <div class="col-12 col-sm-8">
+            <label for="{{ postpone_form.postponed_until.id_for_label }}" class="form-label">
+                {{ postpone_form.postponed_until.label }}
+            </label>
+            {{ postpone_form.postponed_until }}
+            {% if postpone_form.postponed_until.errors %}
+            <div class="text-danger small">{{ postpone_form.postponed_until.errors|striptags }}</div>
+            {% endif %}
+        </div>
+        <div class="col-12 col-sm-4">
+            <button type="submit" class="btn btn-primary btn-lg w-100">Подтвердить</button>
+        </div>
+    </form>
+</div>
+{% endif %}
+{% endblock %}
