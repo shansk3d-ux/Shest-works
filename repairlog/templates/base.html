@@ -28,6 +28,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">Главная</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'clients:list' %}">Клиенты</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'equipment:list' %}">Оборудование</a>
+                    </li>
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav ms-auto align-items-lg-center">

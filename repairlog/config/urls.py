@@ -18,6 +18,8 @@ urlpatterns = [
         name="login",
     ),
     path("accounts/logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("clients/", include("apps.clients.urls")),
+    path("equipment/", include("apps.equipment.urls")),
     path("", include("apps.core.urls")),
 ]
 
