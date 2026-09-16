@@ -86,17 +86,73 @@ class EquipmentCreateViewTests(EquipmentViewsTestCase):
             reverse("equipment:create"),
             {
                 "client": self.client_obj.pk,
-                "equipment_type": self.equipment_type.pk,
-                "brand": self.brand.pk,
+                "equipment_type": self.equipment_type.name,
+                "brand": self.brand.name,
                 "model": "SCC 101",
             },
         )
         equipment = Equipment.objects.get(model="SCC 101")
         self.assertRedirects(response, reverse("equipment:detail", args=[equipment.pk]))
+        self.assertEqual(equipment.equipment_type, self.equipment_type)
+        self.assertEqual(equipment.brand, self.brand)
 
     def test_client_prefilled_from_query_param(self):
         response = self.client.get(reverse("equipment:create"), {"client": self.client_obj.pk})
         self.assertEqual(response.context["form"].initial["client"], str(self.client_obj.pk))
+
+    def test_typing_a_new_type_and_brand_name_creates_and_keeps_them(self):
+        response = self.client.post(
+            reverse("equipment:create"),
+            {
+                "client": self.client_obj.pk,
+                "equipment_type": "Слайсер",
+                "equipment_type_category": EquipmentType.Category.KITCHEN,
+                "brand": "Berkel",
+                "model": "330M",
+            },
+        )
+        equipment = Equipment.objects.get(model="330M")
+        self.assertRedirects(response, reverse("equipment:detail", args=[equipment.pk]))
+        self.assertEqual(equipment.equipment_type.name, "Слайсер")
+        self.assertEqual(equipment.equipment_type.category, EquipmentType.Category.KITCHEN)
+        self.assertEqual(equipment.brand.name, "Berkel")
+        # It's now a real catalog entry, not just attached to this one piece of equipment.
+        self.assertTrue(EquipmentType.objects.filter(name="Слайсер").exists())
+        self.assertTrue(Brand.objects.filter(name="Berkel").exists())
+
+    def test_typing_an_existing_name_case_insensitively_reuses_it(self):
+        # Latin names here: SQLite's UPPER()/LOWER() (unlike Postgres's) only
+        # case-folds ASCII, so a Cyrillic case-insensitive match would only
+        # work against the real Postgres used in production.
+        response = self.client.post(
+            reverse("equipment:create"),
+            {
+                "client": self.client_obj.pk,
+                "equipment_type": self.equipment_type.name,
+                "brand": self.brand.name.upper(),
+                "model": "SCC 102",
+            },
+        )
+        equipment = Equipment.objects.get(model="SCC 102")
+        self.assertRedirects(response, reverse("equipment:detail", args=[equipment.pk]))
+        self.assertEqual(equipment.equipment_type, self.equipment_type)
+        self.assertEqual(equipment.brand, self.brand)
+        matching = Brand.objects.filter(name__iexact=self.brand.name)
+        self.assertEqual(matching.count(), 1)
+
+    def test_new_type_without_category_is_rejected(self):
+        response = self.client.post(
+            reverse("equipment:create"),
+            {
+                "client": self.client_obj.pk,
+                "equipment_type": "Слайсер",
+                "brand": self.brand.name,
+                "model": "330M",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Equipment.objects.filter(model="330M").exists())
+        self.assertFalse(EquipmentType.objects.filter(name="Слайсер").exists())
 
 
 class EquipmentArchiveViewTests(EquipmentViewsTestCase):
