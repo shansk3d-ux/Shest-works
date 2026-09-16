@@ -9,6 +9,13 @@
         {% if equipment.is_archived %}<span class="badge text-bg-secondary">В архиве</span>{% endif %}
     </div>
     <div class="btn-group">
+        {% if not equipment.is_archived %}
+        <a
+            href="{% url 'repairs:create' %}?client={{ equipment.client.pk }}&equipment={{ equipment.pk }}"
+            class="btn btn-primary">
+            Создать заявку
+        </a>
+        {% endif %}
         <a href="{% url 'equipment:update' equipment.pk %}" class="btn btn-outline-secondary">Изменить</a>
         {% if equipment.is_archived %}
         <form method="post" action="{% url 'equipment:restore' equipment.pk %}" class="d-inline">
@@ -48,12 +55,12 @@
 {% if repairs %}
 <div class="list-group">
     {% for repair in repairs %}
-    <div class="list-group-item">
+    <a href="{% url 'repairs:detail' repair.pk %}" class="list-group-item list-group-item-action">
         <div class="d-flex justify-content-between">
             <span>{{ repair.reported_at }} — {{ repair.get_status_display }}</span>
         </div>
         <div class="text-muted small">{{ repair.symptom|truncatechars:120 }}</div>
-    </div>
+    </a>
     {% endfor %}
 </div>
 {% else %}

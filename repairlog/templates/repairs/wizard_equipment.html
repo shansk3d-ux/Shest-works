@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Новая заявка — оборудование — RepairLog{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-1">Новая заявка: шаг 2 из 3 — оборудование</h1>
+<p class="text-muted mb-3">Клиент: {{ client.name }}</p>
+
+{% if equipment_list %}
+<div class="list-group mb-3">
+    {% for item in equipment_list %}
+    <a
+        href="{% url 'repairs:create' %}?client={{ client.pk }}&equipment={{ item.pk }}"
+        class="list-group-item list-group-item-action">
+        <span>{{ item.equipment_type }} — {{ item.brand }} {{ item.model }}</span>
+        {% if item.serial_number %}<div class="text-muted small">SN: {{ item.serial_number }}</div>{% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">У клиента пока нет оборудования.</p>
+{% endif %}
+
+<a href="{{ add_equipment_url }}" class="btn btn-outline-primary">Добавить оборудование</a>
+{% endblock %}

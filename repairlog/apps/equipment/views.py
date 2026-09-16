@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views import generic
 
-from apps.core.views import QuerystringMixin
+from apps.core.views import NextUrlRedirectMixin, QuerystringMixin
 
 from .forms import EquipmentForm
 from .models import Brand, Equipment, EquipmentType
@@ -65,10 +65,11 @@ class EquipmentDetailView(LoginRequiredMixin, generic.DetailView):
         return context
 
 
-class EquipmentCreateView(LoginRequiredMixin, generic.CreateView):
+class EquipmentCreateView(LoginRequiredMixin, NextUrlRedirectMixin, generic.CreateView):
     model = Equipment
     form_class = EquipmentForm
     template_name = "equipment/equipment_form.html"
+    next_url_param_name = "equipment"
 
     def get_initial(self):
         initial = super().get_initial()
@@ -77,7 +78,7 @@ class EquipmentCreateView(LoginRequiredMixin, generic.CreateView):
             initial["client"] = client_id
         return initial
 
-    def get_success_url(self):
+    def get_default_success_url(self):
         return reverse_lazy("equipment:detail", args=[self.object.pk])
 
 

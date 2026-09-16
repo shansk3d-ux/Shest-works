@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Новая заявка — клиент — RepairLog{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Новая заявка: шаг 1 из 3 — клиент</h1>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input
+            type="search"
+            name="q"
+            value="{{ query }}"
+            class="form-control form-control-lg"
+            placeholder="Поиск клиента">
+        <button type="submit" class="btn btn-outline-secondary">Найти</button>
+    </div>
+</form>
+
+<p class="text-muted">
+    Нет нужного клиента? <a href="{% url 'clients:create' %}">Добавить клиента</a>
+</p>
+
+{% if clients %}
+<div class="list-group mb-3">
+    {% for client in clients %}
+    <a href="{% url 'repairs:wizard_equipment' client.pk %}" class="list-group-item list-group-item-action">
+        <div class="d-flex justify-content-between">
+            <span class="fw-semibold">{{ client.name }}</span>
+            <span class="badge text-bg-secondary">{{ client.get_client_type_display }}</span>
+        </div>
+        {% if client.phone %}<div class="text-muted small">{{ client.phone }}</div>{% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Клиенты не найдены.</p>
+{% endif %}
+
+{% include "core/_pagination.html" %}
+{% endblock %}

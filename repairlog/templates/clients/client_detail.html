@@ -9,6 +9,7 @@
         <span class="badge text-bg-secondary">{{ client.get_client_type_display }}</span>
     </div>
     <div class="btn-group">
+        <a href="{% url 'repairs:wizard_equipment' client.pk %}" class="btn btn-primary">Создать заявку</a>
         <a href="{% url 'clients:update' client.pk %}" class="btn btn-outline-secondary">Изменить</a>
         <a href="{% url 'clients:delete' client.pk %}" class="btn btn-outline-danger">Удалить</a>
     </div>

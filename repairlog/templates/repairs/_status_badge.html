@@ -1,0 +1,11 @@
+{% if repair.status == "new" %}
+<span class="badge text-bg-primary">{{ repair.get_status_display }}</span>
+{% elif repair.status == "diagnostics" %}
+<span class="badge text-bg-info">{{ repair.get_status_display }}</span>
+{% elif repair.status == "awaiting_parts" or repair.status == "in_progress" %}
+<span class="badge text-bg-warning">{{ repair.get_status_display }}</span>
+{% elif repair.status == "done" %}
+<span class="badge text-bg-success">{{ repair.get_status_display }}</span>
+{% else %}
+<span class="badge text-bg-secondary">{{ repair.get_status_display }}</span>
+{% endif %}

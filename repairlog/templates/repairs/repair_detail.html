@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Заявка №{{ repair.pk }} — RepairLog{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h1 class="h3 mb-1">Заявка №{{ repair.pk }}</h1>
+        {% include "repairs/_status_badge.html" %}
+        {% if repair.is_archived %}<span class="badge text-bg-secondary">В архиве</span>{% endif %}
+    </div>
+    <div class="btn-group">
+        <a href="{% url 'repairs:update' repair.pk %}" class="btn btn-outline-secondary">Изменить</a>
+        {% if repair.is_archived %}
+        <form method="post" action="{% url 'repairs:restore' repair.pk %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-success">Вернуть из архива</button>
+        </form>
+        {% else %}
+        <a href="{% url 'repairs:archive' repair.pk %}" class="btn btn-outline-danger">В архив</a>
+        {% endif %}
+    </div>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Оборудование</dt>
+    <dd class="col-sm-9">
+        <a href="{% url 'equipment:detail' repair.equipment.pk %}">{{ repair.equipment }}</a>
+    </dd>
+    <dt class="col-sm-3">Клиент</dt>
+    <dd class="col-sm-9">
+        <a href="{% url 'clients:detail' repair.equipment.client.pk %}">{{ repair.equipment.client.name }}</a>
+    </dd>
+    <dt class="col-sm-3">Мастер</dt>
+    <dd class="col-sm-9">{{ repair.master.get_username }}</dd>
+    <dt class="col-sm-3">Дата обращения</dt>
+    <dd class="col-sm-9">{{ repair.reported_at }}</dd>
+    {% if repair.completed_at %}
+    <dt class="col-sm-3">Дата завершения</dt>
+    <dd class="col-sm-9">{{ repair.completed_at }}</dd>
+    {% endif %}
+    {% if repair.error_code %}
+    <dt class="col-sm-3">Код ошибки</dt>
+    <dd class="col-sm-9">{{ repair.error_code }}</dd>
+    {% endif %}
+    <dt class="col-sm-3">Симптом</dt>
+    <dd class="col-sm-9">{{ repair.symptom|linebreaksbr }}</dd>
+    {% if repair.diagnosis %}
+    <dt class="col-sm-3">Диагноз</dt>
+    <dd class="col-sm-9">{{ repair.diagnosis|linebreaksbr }}</dd>
+    {% endif %}
+    {% if repair.work_done %}
+    <dt class="col-sm-3">Выполненные работы</dt>
+    <dd class="col-sm-9">{{ repair.work_done|linebreaksbr }}</dd>
+    {% endif %}
+    {% if repair.fault %}
+    <dt class="col-sm-3">Типовая неисправность</dt>
+    <dd class="col-sm-9">{{ repair.fault }}</dd>
+    {% endif %}
+    <dt class="col-sm-3">Стоимость</dt>
+    <dd class="col-sm-9">
+        Работы: {{ repair.labor_cost }} ₽ · Запчасти: {{ repair.parts_cost }} ₽ · Итого: {{ repair.total_cost }} ₽
+    </dd>
+    {% if repair.warranty_until %}
+    <dt class="col-sm-3">Гарантия до</dt>
+    <dd class="col-sm-9">{{ repair.warranty_until }}</dd>
+    {% endif %}
+</dl>
+
+<h2 class="h5 mt-4 mb-2">Изменить статус</h2>
+<form method="post" action="{% url 'repairs:status' repair.pk %}" class="row g-2 align-items-end mb-4">
+    {% csrf_token %}
+    <div class="col-12 col-sm-8">
+        <label for="{{ status_form.status.id_for_label }}" class="form-label">{{ status_form.status.label }}</label>
+        {{ status_form.status }}
+    </div>
+    <div class="col-12 col-sm-4">
+        <button type="submit" class="btn btn-primary btn-lg w-100">Обновить статус</button>
+    </div>
+</form>
+{% endblock %}
