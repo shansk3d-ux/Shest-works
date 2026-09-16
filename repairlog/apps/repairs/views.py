@@ -16,8 +16,14 @@ from apps.equipment.models import Equipment
 
 from .export import export_repairs_csv, export_repairs_xlsx
 from .filters import RepairFilter
-from .forms import RepairCreateForm, RepairPhotoUploadForm, RepairStatusForm, RepairUpdateForm
-from .models import Repair, RepairPhoto
+from .forms import (
+    RepairCreateForm,
+    RepairPartAddForm,
+    RepairPhotoUploadForm,
+    RepairStatusForm,
+    RepairUpdateForm,
+)
+from .models import Repair, RepairPart, RepairPhoto
 from .utils import compress_image
 
 
@@ -74,6 +80,7 @@ class RepairDetailView(LoginRequiredMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
         context["status_form"] = RepairStatusForm(initial={"status": self.object.status})
         context["photo_form"] = RepairPhotoUploadForm()
+        context["part_form"] = RepairPartAddForm()
         return context
 
 
@@ -102,6 +109,32 @@ class RepairPhotoDeleteView(LoginRequiredMixin, generic.View):
         repair_pk = photo.repair_id
         photo.image.delete(save=False)
         photo.delete()
+        return redirect("repairs:detail", pk=repair_pk)
+
+
+class RepairPartAddView(LoginRequiredMixin, generic.View):
+    def post(self, request, pk):
+        repair = get_object_or_404(Repair, pk=pk)
+        form = RepairPartAddForm(request.POST)
+        if form.is_valid():
+            part = form.cleaned_data["part"]
+            RepairPart.objects.create(
+                repair=repair,
+                part=part,
+                quantity=form.cleaned_data["quantity"],
+                price_at_use=part.price,
+            )
+            messages.success(request, f"Добавлена запчасть «{part.name}».")
+        else:
+            messages.error(request, "Не удалось добавить запчасть.")
+        return redirect("repairs:detail", pk=repair.pk)
+
+
+class RepairPartDeleteView(LoginRequiredMixin, generic.View):
+    def post(self, request, pk):
+        used_part = get_object_or_404(RepairPart, pk=pk)
+        repair_pk = used_part.repair_id
+        used_part.delete()
         return redirect("repairs:detail", pk=repair_pk)
 
 

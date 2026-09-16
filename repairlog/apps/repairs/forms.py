@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from apps.core.forms import BootstrapFormMixin, BootstrapModelForm
 from apps.knowledge.models import Fault
+from apps.parts.models import Part
 
 from .models import Repair, RepairPhoto
 
@@ -103,3 +104,8 @@ class RepairPhotoUploadForm(BootstrapFormMixin, forms.Form):
         label="Этап", choices=RepairPhoto.Stage.choices, initial=RepairPhoto.Stage.BEFORE
     )
     caption = forms.CharField(label="Подпись (опционально)", required=False)
+
+
+class RepairPartAddForm(BootstrapFormMixin, forms.Form):
+    part = forms.ModelChoiceField(label="Запчасть", queryset=Part.objects.select_related("brand"))
+    quantity = forms.IntegerField(label="Количество", min_value=1, initial=1)

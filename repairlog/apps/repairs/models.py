@@ -76,6 +76,10 @@ class Repair(TimeStampedModel):
     def total_cost(self):
         return self.labor_cost + self.parts_cost
 
+    @property
+    def catalog_parts_cost(self):
+        return sum((used_part.subtotal for used_part in self.used_parts.all()), Decimal("0"))
+
 
 class RepairPhoto(TimeStampedModel):
     class Stage(models.TextChoices):
@@ -117,3 +121,7 @@ class RepairPart(TimeStampedModel):
 
     def __str__(self):
         return f"{self.part} × {self.quantity}"
+
+    @property
+    def subtotal(self):
+        return self.quantity * self.price_at_use

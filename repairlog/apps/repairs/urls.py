@@ -22,4 +22,6 @@ urlpatterns = [
     path("<int:pk>/restore/", views.RepairRestoreView.as_view(), name="restore"),
     path("<int:pk>/photos/", views.RepairPhotoUploadView.as_view(), name="photo_upload"),
     path("photos/<int:pk>/delete/", views.RepairPhotoDeleteView.as_view(), name="photo_delete"),
+    path("<int:pk>/parts/", views.RepairPartAddView.as_view(), name="part_add"),
+    path("parts/<int:pk>/delete/", views.RepairPartDeleteView.as_view(), name="part_delete"),
 ]

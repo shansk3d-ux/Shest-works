@@ -37,9 +37,13 @@
     --bs-secondary: var(--wc-text-muted-solid);
 }
 
+html {
+    background: var(--wc-bg);
+}
+
 body {
     background:
-        radial-gradient(ellipse at top, #241a10 0%, var(--wc-bg) 55%, #050302 100%) fixed,
+        radial-gradient(ellipse at top, #241a10 0%, var(--wc-bg) 55%, #050302 100%),
         repeating-linear-gradient(
             0deg,
             rgba(0, 0, 0, 0.15) 0px,
@@ -47,6 +51,7 @@ body {
             transparent 1px,
             transparent 3px
         );
+    background-repeat: repeat;
     color: var(--wc-text);
     font-family: "Cormorant Garamond", "Georgia", serif;
     font-size: 1.15rem;

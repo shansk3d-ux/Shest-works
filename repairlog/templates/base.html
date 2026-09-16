@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -71,6 +71,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'equipment:list' %}">Оборудование</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'parts:list' %}">Запчасти</a>
                     </li>
                     {% endif %}
                 </ul>
