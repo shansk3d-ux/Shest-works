@@ -1,0 +1,325 @@
+/*
+ * "Опять работа?" — Warcraft III: Reign of Chaos skin.
+ * Dark wood/stone panels, gold trim, parchment text — laid over Bootstrap 5
+ * via CSS custom properties + targeted component overrides, so every
+ * existing template (badges, alerts, list-group, forms, buttons) picks it
+ * up without markup changes.
+ */
+
+:root {
+    --wc-bg: #100a06;
+    --wc-bg-alt: #1b120a;
+    --wc-panel: #241a10;
+    --wc-panel-light: #30230f;
+    --wc-gold: #cf9f3f;
+    --wc-gold-bright: #f4d98a;
+    --wc-gold-dim: #7a5a22;
+    --wc-red: #5c0f0f;
+    --wc-red-bright: #9c1f1f;
+    --wc-green: #3f6b2b;
+    --wc-green-bright: #6a9c44;
+    --wc-blue: #2c5270;
+    --wc-blue-bright: #4a84ab;
+    --wc-text: #e7d8b3;
+    --wc-text-muted: #a8967499;
+    --wc-text-muted-solid: #a89674;
+    --wc-border: #4a3418;
+
+    --bs-body-bg: var(--wc-bg);
+    --bs-body-color: var(--wc-text);
+    --bs-border-color: var(--wc-border);
+    --bs-link-color: var(--wc-gold-bright);
+    --bs-link-hover-color: #ffe9ad;
+    --bs-primary: var(--wc-blue-bright);
+    --bs-success: var(--wc-green-bright);
+    --bs-danger: var(--wc-red-bright);
+    --bs-warning: #c98a2e;
+    --bs-secondary: var(--wc-text-muted-solid);
+}
+
+body {
+    background:
+        radial-gradient(ellipse at top, #241a10 0%, var(--wc-bg) 55%, #050302 100%) fixed,
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.15) 0px,
+            rgba(0, 0, 0, 0.15) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+    color: var(--wc-text);
+    font-family: "Cormorant Garamond", "Georgia", serif;
+    font-size: 1.15rem;
+}
+
+h1, h2, h3, h4, h5, h6,
+.navbar-brand,
+.btn,
+.card-title,
+label,
+.form-label,
+th {
+    font-family: "Cinzel", "Georgia", serif;
+    letter-spacing: 0.03em;
+}
+
+h1, h2, h3 {
+    color: var(--wc-gold-bright);
+    text-shadow: 0 1px 0 #000, 0 0 14px rgba(212, 168, 74, 0.25);
+    border-bottom: 2px solid var(--wc-gold-dim);
+    padding-bottom: 0.35rem;
+}
+
+a {
+    color: var(--wc-gold-bright);
+}
+a:hover {
+    color: #ffe9ad;
+}
+
+/* --- Navbar: command-bar styling --- */
+.navbar.bg-dark {
+    background:
+        linear-gradient(180deg, #2a1d10 0%, #180f07 60%, #100a05 100%) !important;
+    border-bottom: 3px solid var(--wc-gold-dim);
+    box-shadow:
+        0 2px 0 #000,
+        0 6px 14px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(244, 217, 138, 0.15);
+    position: relative;
+}
+.navbar.bg-dark::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 3px;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--wc-gold) 0,
+        var(--wc-gold) 6px,
+        transparent 6px,
+        transparent 12px
+    );
+    opacity: 0.55;
+}
+.navbar-brand {
+    color: var(--wc-gold-bright) !important;
+    text-shadow: 0 1px 0 #000, 0 0 10px rgba(244, 217, 138, 0.35);
+    font-size: 1.3rem;
+}
+.navbar-brand img {
+    border: 2px solid var(--wc-gold-dim);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+}
+.navbar .nav-link {
+    color: var(--wc-text) !important;
+    font-family: "Cinzel", serif;
+    font-size: 0.92rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+    transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+    color: var(--wc-gold-bright) !important;
+    text-shadow: 0 0 8px rgba(244, 217, 138, 0.5);
+}
+.navbar-text {
+    font-family: "Cinzel", serif;
+    color: var(--wc-text-muted-solid) !important;
+}
+.navbar .form-control {
+    background: var(--wc-panel);
+    border: 1px solid var(--wc-gold-dim);
+    color: var(--wc-text);
+}
+.navbar-toggler {
+    border-color: var(--wc-gold-dim);
+}
+.navbar-toggler-icon {
+    filter: sepia(1) saturate(3) hue-rotate(-10deg) brightness(1.1);
+}
+
+main.container {
+    background: linear-gradient(180deg, rgba(36, 26, 16, 0.55), rgba(16, 10, 6, 0.35));
+    border: 1px solid var(--wc-border);
+    border-radius: 4px;
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.45);
+    padding-top: 1.5rem !important;
+    padding-bottom: 2rem !important;
+    margin-top: 1rem;
+}
+
+/* --- Buttons: menu-button styling --- */
+.btn {
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    border-radius: 3px;
+    border-width: 2px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+.btn:hover {
+    filter: brightness(1.15);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 10px rgba(244, 217, 138, 0.35);
+}
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn-primary,
+.btn-success,
+.btn-danger,
+.btn-warning {
+    color: var(--wc-text) !important;
+    border-color: var(--wc-gold-dim) !important;
+}
+.btn-primary {
+    background: linear-gradient(180deg, var(--wc-blue-bright), var(--wc-blue)) !important;
+}
+.btn-success {
+    background: linear-gradient(180deg, var(--wc-green-bright), var(--wc-green)) !important;
+}
+.btn-danger {
+    background: linear-gradient(180deg, var(--wc-red-bright), var(--wc-red)) !important;
+}
+.btn-warning {
+    background: linear-gradient(180deg, #d9a542, #96631d) !important;
+    color: #1b1206 !important;
+}
+
+.btn-outline-light,
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-success,
+.btn-outline-danger {
+    background: rgba(36, 26, 16, 0.6);
+    color: var(--wc-text) !important;
+}
+.btn-outline-light { border-color: var(--wc-gold) !important; }
+.btn-outline-light:hover { background: var(--wc-gold-dim) !important; border-color: var(--wc-gold) !important; }
+.btn-outline-primary { border-color: var(--wc-blue-bright) !important; }
+.btn-outline-primary:hover { background: var(--wc-blue) !important; }
+.btn-outline-secondary { border-color: var(--wc-text-muted-solid) !important; }
+.btn-outline-secondary:hover { background: #3a2f1e !important; }
+.btn-outline-success { border-color: var(--wc-green-bright) !important; }
+.btn-outline-success:hover { background: var(--wc-green) !important; }
+.btn-outline-danger { border-color: var(--wc-red-bright) !important; }
+.btn-outline-danger:hover { background: var(--wc-red) !important; }
+
+/* --- Badges: rune/status stone styling --- */
+.badge {
+    font-family: "Cinzel", serif;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 0 0 1px rgba(244, 217, 138, 0.25);
+}
+.text-bg-primary { background: var(--wc-blue) !important; }
+.text-bg-info { background: #2b6a6e !important; }
+.text-bg-success { background: var(--wc-green) !important; }
+.text-bg-warning { background: #96631d !important; color: #1b1206 !important; }
+.text-bg-danger { background: var(--wc-red) !important; }
+.text-bg-secondary { background: #3a2f1e !important; }
+.text-bg-dark { background: #0c0803 !important; border-color: var(--wc-gold-dim) !important; }
+
+/* --- Alerts: scroll/quest-log styling --- */
+.alert {
+    background: var(--wc-panel);
+    border: 1px solid var(--wc-border);
+    border-left-width: 4px;
+    color: var(--wc-text);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.alert-info { border-left-color: var(--wc-blue-bright); }
+.alert-warning { border-left-color: #c98a2e; }
+.alert-danger { border-left-color: var(--wc-red-bright); }
+.alert-success { border-left-color: var(--wc-green-bright); }
+.alert .btn-close {
+    filter: invert(1) sepia(1) saturate(3) hue-rotate(-10deg);
+}
+
+/* --- List groups: unit/quest list styling --- */
+.list-group-item {
+    background: var(--wc-panel);
+    border-color: var(--wc-border);
+    color: var(--wc-text);
+}
+.list-group-item-action:hover,
+.list-group-item-action:focus {
+    background: var(--wc-panel-light);
+    color: var(--wc-gold-bright);
+}
+
+/* --- Forms --- */
+.form-control,
+.form-select {
+    background-color: var(--wc-panel);
+    border: 1px solid var(--wc-border);
+    color: var(--wc-text);
+}
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--wc-panel);
+    color: var(--wc-text);
+    border-color: var(--wc-gold);
+    box-shadow: 0 0 0 0.2rem rgba(207, 159, 63, 0.3);
+}
+.form-control::placeholder {
+    color: var(--wc-text-muted);
+}
+.form-check-input {
+    background-color: var(--wc-panel);
+    border-color: var(--wc-gold-dim);
+}
+.form-check-input:checked {
+    background-color: var(--wc-gold-dim);
+    border-color: var(--wc-gold);
+}
+
+/* --- Tables (in case future templates use them) --- */
+table {
+    color: var(--wc-text);
+}
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--wc-text);
+    --bs-table-border-color: var(--wc-border);
+    --bs-table-striped-bg: rgba(207, 159, 63, 0.06);
+    --bs-table-hover-bg: rgba(207, 159, 63, 0.12);
+}
+thead {
+    border-bottom: 2px solid var(--wc-gold-dim);
+}
+
+/* --- Cards (future-proofing) --- */
+.card {
+    background: var(--wc-panel);
+    border: 1px solid var(--wc-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.card-header {
+    background: var(--wc-panel-light);
+    border-bottom: 1px solid var(--wc-gold-dim);
+}
+
+/* --- Scrollbar flavor (WebKit) --- */
+::-webkit-scrollbar {
+    width: 12px;
+}
+::-webkit-scrollbar-track {
+    background: var(--wc-bg);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--wc-gold-dim);
+    border: 2px solid var(--wc-bg);
+    border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--wc-gold);
+}
