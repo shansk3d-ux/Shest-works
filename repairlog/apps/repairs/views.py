@@ -142,6 +142,11 @@ class RepairCreateView(LoginRequiredMixin, generic.CreateView):
         initial["reported_at"] = timezone.localdate()
         return initial
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["equipment_type_id"] = self.equipment.equipment_type_id
+        return kwargs
+
     def form_valid(self, form):
         form.instance.equipment = self.equipment
         return super().form_valid(form)
@@ -159,6 +164,11 @@ class RepairUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Repair
     form_class = RepairUpdateForm
     template_name = "repairs/repair_form.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["equipment_type_id"] = self.object.equipment.equipment_type_id
+        return kwargs
 
     def get_success_url(self):
         return reverse_lazy("repairs:detail", args=[self.object.pk])

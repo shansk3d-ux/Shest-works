@@ -1,4 +1,7 @@
+import json
+
 from django import forms
+from django.urls import reverse
 
 from apps.core.forms import BootstrapFormMixin, BootstrapModelForm
 from apps.knowledge.models import Fault
@@ -6,6 +9,21 @@ from apps.knowledge.models import Fault
 from .models import Repair, RepairPhoto
 
 DATE_WIDGET = forms.DateInput(attrs={"type": "date"})
+
+
+def _attach_fault_suggestions(field, equipment_type_id):
+    """Wires up the error_code field to live-load matching Fault entries via HTMX."""
+    if not equipment_type_id:
+        return
+    field.widget.attrs.update(
+        {
+            "hx-get": reverse("knowledge:fault_suggestions"),
+            "hx-trigger": "keyup changed delay:400ms, load",
+            "hx-target": "#fault-suggestions",
+            "hx-swap": "innerHTML",
+            "hx-vals": json.dumps({"equipment_type": equipment_type_id}),
+        }
+    )
 
 
 class MultipleFileInput(forms.ClearableFileInput):
@@ -35,6 +53,10 @@ class RepairCreateForm(BootstrapModelForm):
             "symptom": forms.Textarea(attrs={"rows": 3}),
         }
 
+    def __init__(self, *args, equipment_type_id=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        _attach_fault_suggestions(self.fields["error_code"], equipment_type_id)
+
 
 class RepairUpdateForm(BootstrapModelForm):
     class Meta:
@@ -62,12 +84,13 @@ class RepairUpdateForm(BootstrapModelForm):
             "work_done": forms.Textarea(attrs={"rows": 3}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, equipment_type_id=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["fault"].queryset = Fault.objects.select_related(
             "equipment_type", "brand"
         ).order_by("equipment_type__name", "error_code")
         self.fields["fault"].empty_label = "Не выбрано"
+        _attach_fault_suggestions(self.fields["error_code"], equipment_type_id)
 
 
 class RepairStatusForm(BootstrapFormMixin, forms.Form):

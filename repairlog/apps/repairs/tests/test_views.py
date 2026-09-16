@@ -92,6 +92,16 @@ class RepairCreateViewTests(RepairViewsTestCase):
         self.assertEqual(repair.equipment, self.equipment)
         self.assertEqual(repair.status, Repair.Status.NEW)
 
+    def test_error_code_field_wired_for_fault_suggestions(self):
+        response = self.client.get(
+            reverse("repairs:create"), {"equipment": self.equipment.pk}
+        )
+        form = response.context["form"]
+        attrs = form.fields["error_code"].widget.attrs
+        self.assertEqual(attrs["hx-get"], reverse("knowledge:fault_suggestions"))
+        self.assertIn(str(self.equipment_type.pk), attrs["hx-vals"])
+        self.assertContains(response, 'id="fault-suggestions"')
+
 
 class RepairListViewTests(RepairViewsTestCase):
     def setUp(self):
@@ -186,6 +196,19 @@ class RepairUpdateViewTests(RepairViewsTestCase):
         repair.refresh_from_db()
         self.assertEqual(repair.status, Repair.Status.DIAGNOSTICS)
         self.assertEqual(repair.diagnosis, "Неисправен ТЭН")
+
+    def test_error_code_field_wired_for_fault_suggestions(self):
+        repair = Repair.objects.create(
+            equipment=self.equipment,
+            master=self.user,
+            reported_at=timezone.localdate(),
+            symptom="Не набирает температуру",
+        )
+        response = self.client.get(reverse("repairs:update", args=[repair.pk]))
+        attrs = response.context["form"].fields["error_code"].widget.attrs
+        self.assertEqual(attrs["hx-get"], reverse("knowledge:fault_suggestions"))
+        self.assertIn(str(self.equipment_type.pk), attrs["hx-vals"])
+        self.assertContains(response, 'id="fault-suggestions"')
 
 
 class RepairStatusUpdateViewTests(RepairViewsTestCase):
