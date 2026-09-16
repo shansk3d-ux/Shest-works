@@ -6,6 +6,8 @@ app_name = "repairs"
 
 urlpatterns = [
     path("", views.RepairListView.as_view(), name="list"),
+    path("export/csv/", views.RepairExportCSVView.as_view(), name="export_csv"),
+    path("export/xlsx/", views.RepairExportXLSXView.as_view(), name="export_xlsx"),
     path("new/", views.RepairWizardClientStepView.as_view(), name="wizard_client"),
     path(
         "new/<int:client_id>/equipment/",

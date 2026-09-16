@@ -14,24 +14,35 @@ from apps.core.forms import apply_bootstrap_classes
 from apps.core.views import QuerystringMixin
 from apps.equipment.models import Equipment
 
+from .export import export_repairs_csv, export_repairs_xlsx
 from .filters import RepairFilter
 from .forms import RepairCreateForm, RepairPhotoUploadForm, RepairStatusForm, RepairUpdateForm
 from .models import Repair, RepairPhoto
 from .utils import compress_image
 
 
-class RepairListView(LoginRequiredMixin, QuerystringMixin, generic.ListView):
+class RepairFilteredQuerysetMixin:
+    """Builds the same status/master/date/search/archived-filtered Repair queryset
+    for the list view and both export views, so they never drift apart."""
+
+    def get_filterset(self):
+        show_archived = self.request.GET.get("archived") == "1"
+        queryset = Repair.objects.select_related(
+            "equipment", "equipment__client", "master"
+        ).filter(is_archived=show_archived)
+        return RepairFilter(self.request.GET, queryset=queryset)
+
+
+class RepairListView(
+    LoginRequiredMixin, RepairFilteredQuerysetMixin, QuerystringMixin, generic.ListView
+):
     model = Repair
     template_name = "repairs/repair_list.html"
     context_object_name = "repairs"
     paginate_by = 20
 
     def get_queryset(self):
-        show_archived = self.request.GET.get("archived") == "1"
-        queryset = Repair.objects.select_related(
-            "equipment", "equipment__client", "master"
-        ).filter(is_archived=show_archived)
-        self.filterset = RepairFilter(self.request.GET, queryset=queryset)
+        self.filterset = self.get_filterset()
         apply_bootstrap_classes(self.filterset.form)
         return self.filterset.qs
 
@@ -40,6 +51,18 @@ class RepairListView(LoginRequiredMixin, QuerystringMixin, generic.ListView):
         context["filter"] = self.filterset
         context["show_archived"] = self.request.GET.get("archived") == "1"
         return context
+
+
+class RepairExportCSVView(LoginRequiredMixin, RepairFilteredQuerysetMixin, generic.View):
+    def get(self, request):
+        queryset = self.get_filterset().qs.order_by("-reported_at")
+        return export_repairs_csv(queryset)
+
+
+class RepairExportXLSXView(LoginRequiredMixin, RepairFilteredQuerysetMixin, generic.View):
+    def get(self, request):
+        queryset = self.get_filterset().qs.order_by("-reported_at")
+        return export_repairs_xlsx(queryset)
 
 
 class RepairDetailView(LoginRequiredMixin, generic.DetailView):

@@ -157,6 +157,75 @@ class RepairListViewTests(RepairViewsTestCase):
         self.assertNotContains(response, "Не набирает температуру")
 
 
+class RepairExportViewsTests(RepairViewsTestCase):
+    def setUp(self):
+        super().setUp()
+        self.repair = Repair.objects.create(
+            equipment=self.equipment,
+            master=self.user,
+            reported_at=timezone.localdate(),
+            symptom="Не набирает температуру",
+            error_code="E4",
+        )
+
+    def test_csv_requires_login(self):
+        self.client.logout()
+        response = self.client.get(reverse("repairs:export_csv"))
+        self.assertEqual(response.status_code, 302)
+
+    def test_xlsx_requires_login(self):
+        self.client.logout()
+        response = self.client.get(reverse("repairs:export_xlsx"))
+        self.assertEqual(response.status_code, 302)
+
+    def test_csv_export_contains_visible_repair(self):
+        response = self.client.get(reverse("repairs:export_csv"))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"E4", response.content)
+        self.assertIn("Не набирает температуру".encode(), response.content)
+
+    def test_csv_export_respects_status_filter(self):
+        other = Repair.objects.create(
+            equipment=self.equipment,
+            master=self.user,
+            reported_at=timezone.localdate(),
+            symptom="Другая заявка",
+            status=Repair.Status.DONE,
+        )
+        response = self.client.get(
+            reverse("repairs:export_csv"), {"status": Repair.Status.DONE}
+        )
+        content = response.content.decode("utf-8-sig")
+        self.assertIn("Другая заявка", content)
+        self.assertNotIn("Не набирает температуру", content)
+        self.assertTrue(Repair.objects.filter(pk=other.pk).exists())
+
+    def test_csv_export_excludes_archived_by_default(self):
+        self.repair.is_archived = True
+        self.repair.save(update_fields=["is_archived"])
+        response = self.client.get(reverse("repairs:export_csv"))
+        content = response.content.decode("utf-8-sig")
+        self.assertNotIn("Не набирает температуру", content)
+
+    def test_csv_export_includes_archived_when_requested(self):
+        self.repair.is_archived = True
+        self.repair.save(update_fields=["is_archived"])
+        response = self.client.get(reverse("repairs:export_csv"), {"archived": "1"})
+        content = response.content.decode("utf-8-sig")
+        self.assertIn("Не набирает температуру", content)
+
+    def test_xlsx_export_returns_valid_workbook(self):
+        from io import BytesIO
+
+        from openpyxl import load_workbook
+
+        response = self.client.get(reverse("repairs:export_xlsx"))
+        self.assertEqual(response.status_code, 200)
+        workbook = load_workbook(BytesIO(response.content))
+        sheet = workbook.active
+        self.assertEqual(sheet.max_row, 2)
+
+
 class RepairDetailViewTests(RepairViewsTestCase):
     def test_shows_repair_info(self):
         repair = Repair.objects.create(

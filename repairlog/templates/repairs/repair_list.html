@@ -23,6 +23,19 @@
     <button type="submit" class="btn btn-outline-secondary">Применить фильтры</button>
 </form>
 
+<div class="d-flex gap-2 mb-3">
+    <a
+        href="{% url 'repairs:export_csv' %}?{{ request.GET.urlencode }}"
+        class="btn btn-outline-secondary btn-sm">
+        Экспорт CSV
+    </a>
+    <a
+        href="{% url 'repairs:export_xlsx' %}?{{ request.GET.urlencode }}"
+        class="btn btn-outline-secondary btn-sm">
+        Экспорт Excel
+    </a>
+</div>
+
 {% if repairs %}
 <div class="list-group mb-3">
     {% for repair in repairs %}
