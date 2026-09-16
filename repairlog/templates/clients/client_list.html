@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static client_extras %}
 
 {% block title %}Клиенты — Опять работа?{% endblock %}
 
@@ -24,11 +25,21 @@
 <div class="list-group mb-3">
     {% for client in clients %}
     <a href="{% url 'clients:detail' client.pk %}" class="list-group-item list-group-item-action">
-        <div class="d-flex justify-content-between">
-            <span class="fw-semibold">{{ client.name }}</span>
-            <span class="badge text-bg-secondary">{{ client.get_client_type_display }}</span>
+        <div class="d-flex align-items-center gap-3">
+            <img
+                src="{% static client|client_icon %}"
+                alt=""
+                width="40"
+                height="40"
+                class="client-icon flex-shrink-0">
+            <div class="flex-grow-1 min-w-0">
+                <div class="d-flex justify-content-between">
+                    <span class="fw-semibold">{{ client.name }}</span>
+                    <span class="badge text-bg-secondary">{{ client.get_client_type_display }}</span>
+                </div>
+                {% if client.phone %}<div class="text-muted small">{{ client.phone }}</div>{% endif %}
+            </div>
         </div>
-        {% if client.phone %}<div class="text-muted small">{{ client.phone }}</div>{% endif %}
     </a>
     {% endfor %}
 </div>

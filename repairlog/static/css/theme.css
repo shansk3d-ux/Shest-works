@@ -263,6 +263,18 @@ main.container {
 .btn-outline-danger { --wc-ring: var(--wc-red-bright); }
 .btn-outline-danger:hover { background: var(--wc-red) !important; }
 
+/* --- Client portraits: unit-portrait frame styling --- */
+.client-icon {
+    object-fit: cover;
+    background: var(--wc-steel-dark);
+    border: 2px solid var(--wc-steel-dark);
+    border-radius: 3px;
+    box-shadow:
+        0 0 0 1px var(--wc-gold-dim),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+        0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
 /* --- Badges: rune/status stone styling --- */
 .badge {
     font-family: "Cinzel", serif;
