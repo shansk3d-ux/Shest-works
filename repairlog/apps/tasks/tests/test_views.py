@@ -62,6 +62,28 @@ class TaskDetailViewTests(TaskViewsTestCase):
         response = self.client.get(reverse("tasks:detail", args=[task.pk]))
         self.assertContains(response, "Проверить компрессор")
 
+    def test_new_task_only_offers_start_and_delete(self):
+        task = Task.objects.create(
+            title="Новая задача", due_at=timezone.now(), owner=self.user
+        )
+        response = self.client.get(reverse("tasks:detail", args=[task.pk]))
+        self.assertContains(response, "Начать")
+        self.assertContains(response, "Отмена")
+        self.assertNotContains(response, "Завершить")
+        self.assertNotContains(response, "Отложить")
+
+    def test_in_progress_task_offers_postpone_and_complete_only(self):
+        task = Task.objects.create(
+            title="В работе",
+            due_at=timezone.now(),
+            owner=self.user,
+            status=Task.Status.IN_PROGRESS,
+        )
+        response = self.client.get(reverse("tasks:detail", args=[task.pk]))
+        self.assertContains(response, "Завершить")
+        self.assertContains(response, "Отложить")
+        self.assertNotContains(response, "Начать")
+
 
 class TaskCreateViewTests(TaskViewsTestCase):
     def test_creates_task_and_sets_owner(self):
@@ -80,6 +102,14 @@ class TaskCreateViewTests(TaskViewsTestCase):
         self.assertRedirects(response, reverse("tasks:detail", args=[task.pk]))
         self.assertEqual(task.owner, self.user)
 
+    def test_due_at_defaults_to_the_current_time(self):
+        response = self.client.get(reverse("tasks:create"))
+        initial_value = response.context["form"].initial["due_at"]
+        parsed = timezone.datetime.strptime(initial_value, DATETIME_LOCAL_FORMAT)
+        self.assertAlmostEqual(
+            parsed, timezone.localtime().replace(tzinfo=None), delta=timedelta(minutes=1)
+        )
+
 
 class TaskActionViewTests(TaskViewsTestCase):
     def setUp(self):
@@ -88,17 +118,22 @@ class TaskActionViewTests(TaskViewsTestCase):
             title="Забрать запчасть", due_at=timezone.now(), owner=self.user
         )
 
+    def test_start_sets_status_in_progress(self):
+        response = self.client.post(reverse("tasks:start", args=[self.task.pk]))
+        self.assertRedirects(response, reverse("tasks:detail", args=[self.task.pk]))
+        self.task.refresh_from_db()
+        self.assertEqual(self.task.status, Task.Status.IN_PROGRESS)
+
     def test_complete_sets_status_done(self):
         response = self.client.post(reverse("tasks:complete", args=[self.task.pk]))
         self.assertRedirects(response, reverse("tasks:detail", args=[self.task.pk]))
         self.task.refresh_from_db()
         self.assertEqual(self.task.status, Task.Status.DONE)
 
-    def test_cancel_sets_status_cancelled(self):
-        response = self.client.post(reverse("tasks:cancel", args=[self.task.pk]))
-        self.assertRedirects(response, reverse("tasks:detail", args=[self.task.pk]))
-        self.task.refresh_from_db()
-        self.assertEqual(self.task.status, Task.Status.CANCELLED)
+    def test_delete_removes_the_task_entirely(self):
+        response = self.client.post(reverse("tasks:delete", args=[self.task.pk]))
+        self.assertRedirects(response, reverse("tasks:list"))
+        self.assertFalse(Task.objects.filter(pk=self.task.pk).exists())
 
     def test_postpone_sets_postponed_until_and_status(self):
         self.task.notified_at = timezone.now()

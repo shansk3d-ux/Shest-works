@@ -10,6 +10,8 @@
         <span class="badge {% if task.is_overdue %}text-bg-danger{% else %}text-bg-primary{% endif %}">
             {% if task.is_overdue %}Просрочена{% else %}Новая{% endif %}
         </span>
+        {% elif task.status == "in_progress" %}
+        <span class="badge text-bg-info">В работе</span>
         {% elif task.status == "postponed" %}
         <span class="badge {% if task.is_overdue %}text-bg-danger{% else %}text-bg-warning{% endif %}">
             Отложена
@@ -44,7 +46,19 @@
     <dd class="col-sm-9">{{ task.get_notify_sound_display }}</dd>
 </dl>
 
-{% if task.status == "new" or task.status == "postponed" %}
+{% if task.status == "new" %}
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <form method="post" action="{% url 'tasks:start' task.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Начать</button>
+    </form>
+
+    <form method="post" action="{% url 'tasks:delete' task.pk %}" onsubmit="return confirm('Удалить эту задачу?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-danger">Отмена</button>
+    </form>
+</div>
+{% elif task.status == "in_progress" or task.status == "postponed" %}
 <div class="d-flex flex-wrap gap-2 mb-3">
     <form method="post" action="{% url 'tasks:complete' task.pk %}">
         {% csrf_token %}
@@ -54,11 +68,6 @@
     <button type="button" class="btn btn-warning" data-bs-toggle="collapse" data-bs-target="#postponeForm">
         Отложить
     </button>
-
-    <form method="post" action="{% url 'tasks:cancel' task.pk %}" onsubmit="return confirm('Точно отменить задачу?');">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-outline-danger">Отменить</button>
-    </form>
 </div>
 
 <div class="collapse {% if task.status == "postponed" %}show{% endif %}" id="postponeForm">

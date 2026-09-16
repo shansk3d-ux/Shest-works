@@ -11,7 +11,7 @@ from django.views import generic
 
 from apps.core.views import QuerystringMixin
 
-from .forms import TaskForm, TaskPostponeForm
+from .forms import DATETIME_LOCAL_FORMAT, TaskForm, TaskPostponeForm
 from .models import Task
 
 
@@ -67,6 +67,11 @@ class TaskCreateView(LoginRequiredMixin, generic.CreateView):
     form_class = TaskForm
     template_name = "tasks/task_form.html"
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial["due_at"] = timezone.localtime().strftime(DATETIME_LOCAL_FORMAT)
+        return initial
+
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super().form_valid(form)
@@ -84,6 +89,14 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
         return reverse_lazy("tasks:detail", args=[self.object.pk])
 
 
+class TaskStartView(LoginRequiredMixin, generic.View):
+    def post(self, request, pk):
+        task = get_object_or_404(Task, pk=pk)
+        task.status = Task.Status.IN_PROGRESS
+        task.save(update_fields=["status"])
+        return redirect("tasks:detail", pk=task.pk)
+
+
 class TaskCompleteView(LoginRequiredMixin, generic.View):
     def post(self, request, pk):
         task = get_object_or_404(Task, pk=pk)
@@ -92,12 +105,13 @@ class TaskCompleteView(LoginRequiredMixin, generic.View):
         return redirect("tasks:detail", pk=task.pk)
 
 
-class TaskCancelView(LoginRequiredMixin, generic.View):
+class TaskDeleteView(LoginRequiredMixin, generic.View):
+    """Drops a task that was never started, as if it had never been created."""
+
     def post(self, request, pk):
         task = get_object_or_404(Task, pk=pk)
-        task.status = Task.Status.CANCELLED
-        task.save(update_fields=["status"])
-        return redirect("tasks:detail", pk=task.pk)
+        task.delete()
+        return redirect("tasks:list")
 
 
 class TaskPostponeView(LoginRequiredMixin, generic.View):

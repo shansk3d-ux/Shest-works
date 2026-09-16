@@ -9,6 +9,7 @@ from apps.repairs.models import Repair
 class Task(TimeStampedModel):
     class Status(models.TextChoices):
         NEW = "new", "Новая"
+        IN_PROGRESS = "in_progress", "В работе"
         DONE = "done", "Завершена"
         POSTPONED = "postponed", "Отложена"
         CANCELLED = "cancelled", "Отменена"
