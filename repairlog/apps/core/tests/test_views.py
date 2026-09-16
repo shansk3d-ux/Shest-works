@@ -17,7 +17,7 @@ class HomeViewTests(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "RepairLog")
+        self.assertContains(response, "Опять работа?")
 
 
 class LoginViewTests(TestCase):

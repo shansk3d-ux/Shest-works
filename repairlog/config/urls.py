@@ -6,8 +6,8 @@ from django.urls import include, path
 
 from apps.core.forms import LoginForm
 
-admin.site.site_header = "RepairLog"
-admin.site.site_title = "RepairLog"
+admin.site.site_header = "Опять работа?"
+admin.site.site_title = "Опять работа?"
 admin.site.index_title = "Администрирование"
 
 urlpatterns = [
