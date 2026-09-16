@@ -11,6 +11,7 @@ RUN apt-get update \
 
 COPY pyproject.toml ./
 COPY . .
+RUN chmod +x deploy/entrypoint.sh
 
 RUN pip install --no-cache-dir .
 
