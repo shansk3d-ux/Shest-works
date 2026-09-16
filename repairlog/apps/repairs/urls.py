@@ -18,4 +18,6 @@ urlpatterns = [
     path("<int:pk>/status/", views.RepairStatusUpdateView.as_view(), name="status"),
     path("<int:pk>/archive/", views.RepairArchiveView.as_view(), name="archive"),
     path("<int:pk>/restore/", views.RepairRestoreView.as_view(), name="restore"),
+    path("<int:pk>/photos/", views.RepairPhotoUploadView.as_view(), name="photo_upload"),
+    path("photos/<int:pk>/delete/", views.RepairPhotoDeleteView.as_view(), name="photo_delete"),
 ]

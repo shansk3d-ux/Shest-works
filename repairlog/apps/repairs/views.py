@@ -15,8 +15,9 @@ from apps.core.views import QuerystringMixin
 from apps.equipment.models import Equipment
 
 from .filters import RepairFilter
-from .forms import RepairCreateForm, RepairStatusForm, RepairUpdateForm
-from .models import Repair
+from .forms import RepairCreateForm, RepairPhotoUploadForm, RepairStatusForm, RepairUpdateForm
+from .models import Repair, RepairPhoto
+from .utils import compress_image
 
 
 class RepairListView(LoginRequiredMixin, QuerystringMixin, generic.ListView):
@@ -49,7 +50,36 @@ class RepairDetailView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["status_form"] = RepairStatusForm(initial={"status": self.object.status})
+        context["photo_form"] = RepairPhotoUploadForm()
         return context
+
+
+class RepairPhotoUploadView(LoginRequiredMixin, generic.View):
+    def post(self, request, pk):
+        repair = get_object_or_404(Repair, pk=pk)
+        form = RepairPhotoUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            stage = form.cleaned_data["stage"]
+            caption = form.cleaned_data["caption"]
+            uploads = form.cleaned_data["images"]
+            for uploaded in uploads:
+                compressed = compress_image(uploaded)
+                photo = RepairPhoto(repair=repair, stage=stage, caption=caption)
+                photo.image.save(compressed.name, compressed, save=False)
+                photo.save()
+            messages.success(request, f"Загружено фото: {len(uploads)}.")
+        else:
+            messages.error(request, "Не удалось загрузить фото. Проверьте файлы.")
+        return redirect("repairs:detail", pk=repair.pk)
+
+
+class RepairPhotoDeleteView(LoginRequiredMixin, generic.View):
+    def post(self, request, pk):
+        photo = get_object_or_404(RepairPhoto, pk=pk)
+        repair_pk = photo.repair_id
+        photo.image.delete(save=False)
+        photo.delete()
+        return redirect("repairs:detail", pk=repair_pk)
 
 
 class RepairWizardClientStepView(LoginRequiredMixin, generic.ListView):
