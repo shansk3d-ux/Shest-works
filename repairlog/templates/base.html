@@ -43,6 +43,16 @@
                     </li>
                     {% endif %}
                 </ul>
+                {% if user.is_authenticated %}
+                <form method="get" action="{% url 'search' %}" class="d-flex my-2 my-lg-0 me-lg-3">
+                    <input
+                        type="search"
+                        name="q"
+                        class="form-control"
+                        placeholder="Поиск по заявкам и базе знаний"
+                        aria-label="Поиск">
+                </form>
+                {% endif %}
                 <ul class="navbar-nav ms-auto align-items-lg-center">
                     {% if user.is_authenticated %}
                     <li class="nav-item">

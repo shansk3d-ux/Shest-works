@@ -1,10 +1,53 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from django.db.models import Q
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import TemplateView
+
+SEARCH_CONFIG = "russian"
+SEARCH_RESULT_LIMIT = 30
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "core/home.html"
+
+
+class GlobalSearchView(LoginRequiredMixin, TemplateView):
+    """Full-text search across repair notes and the knowledge base (PostgreSQL only)."""
+
+    template_name = "core/search_results.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get("q", "").strip()
+        context["query"] = query
+        context["repairs"] = self._search_repairs(query) if query else []
+        context["faults"] = self._search_faults(query) if query else []
+        return context
+
+    def _search_repairs(self, query):
+        from apps.repairs.models import Repair
+
+        vector = SearchVector("symptom", "diagnosis", "work_done", config=SEARCH_CONFIG)
+        search_query = SearchQuery(query, config=SEARCH_CONFIG)
+        return (
+            Repair.objects.annotate(rank=SearchRank(vector, search_query))
+            .filter(Q(rank__gte=0.01) | Q(error_code__icontains=query))
+            .select_related("equipment", "equipment__client")
+            .order_by("-rank")[:SEARCH_RESULT_LIMIT]
+        )
+
+    def _search_faults(self, query):
+        from apps.knowledge.models import Fault
+
+        vector = SearchVector("symptom", "cause", "solution", config=SEARCH_CONFIG)
+        search_query = SearchQuery(query, config=SEARCH_CONFIG)
+        return (
+            Fault.objects.annotate(rank=SearchRank(vector, search_query))
+            .filter(Q(rank__gte=0.01) | Q(error_code__icontains=query))
+            .select_related("equipment_type", "brand")
+            .order_by("-rank")[:SEARCH_RESULT_LIMIT]
+        )
 
 
 class QuerystringMixin:
