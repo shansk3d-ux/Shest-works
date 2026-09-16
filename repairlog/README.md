@@ -31,6 +31,13 @@ Django 5, PostgreSQL 16, Django Templates + HTMX + Bootstrap 5, Docker Compose.
 
 4. Откройте <http://localhost:8000/> — должна открыться стартовая страница RepairLog.
 
+5. Заполните справочники начальными данными (типы оборудования, категории,
+   популярные бренды):
+
+   ```bash
+   docker compose exec web python manage.py seed
+   ```
+
 ## Разработка без Docker
 
 ```bash
