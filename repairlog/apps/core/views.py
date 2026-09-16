@@ -12,6 +12,14 @@ class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "core/home.html"
 
 
+class ServiceWorkerView(TemplateView):
+    """Served at the site root (not under /static/) so its default scope covers
+    the whole app, letting it satisfy Chrome's installability checks."""
+
+    template_name = "service-worker.js"
+    content_type = "application/javascript"
+
+
 class GlobalSearchView(LoginRequiredMixin, TemplateView):
     """Full-text search across repair notes and the knowledge base (PostgreSQL only)."""
 
