@@ -27,33 +27,46 @@
                     style="object-fit: cover;">
                 Опять работа?
             </a>
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarMain"
-                aria-controls="navbarMain"
-                aria-expanded="false"
-                aria-label="Открыть меню">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <div class="d-flex align-items-center gap-2">
+                {% if user.is_authenticated %}
+                <a class="nav-link px-2" href="{% url 'home' %}" aria-label="Главная" title="Главная">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="22"
+                        height="22"
+                        fill="currentColor"
+                        viewBox="0 0 16 16"
+                        aria-hidden="true">
+                        <path
+                            d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 6.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v2.293L8.707 1.5Z" />
+                    </svg>
+                </a>
+                {% endif %}
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarMain"
+                    aria-controls="navbarMain"
+                    aria-expanded="false"
+                    aria-label="Открыть меню">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">Главная</a>
+                        <a class="nav-link" href="{% url 'repairs:list' %}">Заявки</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tasks:list' %}">Задачи</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'clients:list' %}">Клиенты</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'equipment:list' %}">Оборудование</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'repairs:list' %}">Заявки</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'tasks:list' %}">Задачи</a>
                     </li>
                     {% endif %}
                 </ul>
