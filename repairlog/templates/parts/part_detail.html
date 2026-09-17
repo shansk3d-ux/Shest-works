@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ part.name }} — Опять работа?{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-start gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1">{{ part.name }}</h1>
+        <span class="badge {% if part.kind == 'service' %}text-bg-info{% else %}text-bg-secondary{% endif %}">
+            {{ part.get_kind_display }}
+        </span>
+    </div>
+    <div class="d-grid gap-2 d-sm-flex">
+        <a href="{% url 'parts:update' part.pk %}" class="btn btn-outline-secondary">Изменить</a>
+        <a href="{% url 'parts:delete' part.pk %}" class="btn btn-outline-danger">Удалить</a>
+    </div>
+</div>
+
+<dl class="row">
+    {% if part.brand %}
+    <dt class="col-sm-3">Бренд</dt>
+    <dd class="col-sm-9">{{ part.brand }}</dd>
+    {% endif %}
+    {% if part.article %}
+    <dt class="col-sm-3">Артикул</dt>
+    <dd class="col-sm-9">{{ part.article }}</dd>
+    {% endif %}
+    <dt class="col-sm-3">Цена</dt>
+    <dd class="col-sm-9">{{ part.price }} ₽</dd>
+    {% if part.notes %}
+    <dt class="col-sm-3">Заметки</dt>
+    <dd class="col-sm-9">{{ part.notes|linebreaksbr }}</dd>
+    {% endif %}
+</dl>
+
+<h2 class="h5 mt-4 mb-2">Использована в ремонтах</h2>
+{% if used_in %}
+<div class="list-group">
+    {% for used_part in used_in %}
+    <a href="{% url 'repairs:detail' used_part.repair.pk %}" class="list-group-item list-group-item-action">
+        <div class="d-flex justify-content-between">
+            <span>Заявка №{{ used_part.repair.pk }} — {{ used_part.repair.equipment }}</span>
+            <span>{{ used_part.quantity }} × {{ used_part.price_at_use }} ₽</span>
+        </div>
+        <div class="text-muted small">{{ used_part.repair.reported_at }}</div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Пока не использовалась ни в одном ремонте.</p>
+{% endif %}
+{% endblock %}

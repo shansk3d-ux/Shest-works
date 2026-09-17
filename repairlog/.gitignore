@@ -11,6 +11,9 @@ test_db.sqlite3
 /media/*
 !/media/.gitkeep
 
+# Backups (deploy/backup.sh output)
+/backups/
+
 # Env
 .env
 

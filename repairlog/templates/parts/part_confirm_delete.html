@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Удалить запчасть — Опять работа?{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Удалить запчасть «{{ part.name }}»?</h1>
+{% if part.repair_parts.exists %}
+<div class="alert alert-warning">
+    Запчасть использована в ремонтах ({{ part.repair_parts.count }}) — удаление будет отклонено.
+</div>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger btn-lg">Да, удалить</button>
+    <a href="{% url 'parts:detail' part.pk %}" class="btn btn-outline-secondary btn-lg">Отмена</a>
+</form>
+{% endblock %}

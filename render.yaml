@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: opyat-rabota
+    runtime: python
+    rootDir: repairlog
+    plan: free
+    buildCommand: pip install -e . && python manage.py collectstatic --noinput
+    startCommand: >-
+      python manage.py migrate --noinput &&
+      python manage.py bootstrap_demo &&
+      gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.prod
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://*.onrender.com"
+      - key: SECURE_SSL_REDIRECT
+        value: "True"
+      - key: DEMO_USERNAME
+        value: demo
+      - key: DEMO_PASSWORD
+        value: opyat-rabota-demo
+      - key: DATABASE_URL
+        fromDatabase:
+          name: opyat-rabota-db
+          property: connectionString
+
+databases:
+  - name: opyat-rabota-db
+    plan: free
+    databaseName: repairlog
+    user: repairlog

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск — Опять работа?{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Поиск</h1>
+
+<form method="get" action="{% url 'search' %}" class="mb-4">
+    <div class="input-group">
+        <input
+            type="search"
+            name="q"
+            value="{{ query }}"
+            class="form-control form-control-lg"
+            placeholder="Симптом, диагноз, код ошибки…"
+            autofocus>
+        <button type="submit" class="btn btn-primary">Найти</button>
+    </div>
+</form>
+
+{% if query %}
+    {% if not repairs and not faults %}
+    <p class="text-muted">Ничего не найдено по запросу «{{ query }}».</p>
+    {% endif %}
+
+    {% if repairs %}
+    <h2 class="h5 mb-2">Заявки</h2>
+    <div class="list-group mb-4">
+        {% for repair in repairs %}
+        <a href="{% url 'repairs:detail' repair.pk %}" class="list-group-item list-group-item-action">
+            <div class="d-flex justify-content-between">
+                <span class="fw-semibold">№{{ repair.pk }} — {{ repair.equipment }}</span>
+                {% include "repairs/_status_badge.html" %}
+            </div>
+            <div class="text-muted small">
+                {{ repair.equipment.client.name }} · {{ repair.reported_at }}
+                {% if repair.error_code %} · код {{ repair.error_code }}{% endif %}
+            </div>
+            <div class="text-muted small">{{ repair.symptom|truncatechars:150 }}</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if faults %}
+    <h2 class="h5 mb-2">База знаний</h2>
+    <div class="list-group mb-4">
+        {% for fault in faults %}
+        <div class="list-group-item">
+            <div class="d-flex justify-content-between">
+                <span class="fw-semibold">
+                    {{ fault.equipment_type }}{% if fault.brand %} — {{ fault.brand }}{% endif %}
+                </span>
+                {% if fault.error_code %}<span class="badge text-bg-secondary">{{ fault.error_code }}</span>{% endif %}
+            </div>
+            <div class="text-muted small">{{ fault.symptom|truncatechars:150 }}</div>
+            <div class="small mt-1"><strong>Причина:</strong> {{ fault.cause|truncatechars:150 }}</div>
+            <div class="small"><strong>Решение:</strong> {{ fault.solution|truncatechars:150 }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% else %}
+<p class="text-muted">Введите запрос — поиск ведётся по симптомам, диагнозам, выполненным работам и базе знаний.</p>
+{% endif %}
+{% endblock %}

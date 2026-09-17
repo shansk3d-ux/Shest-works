@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import environ
+from django.contrib.messages import constants as message_constants
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -20,7 +21,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
+    "django_filters",
     "apps.core",
+    "apps.clients",
+    "apps.equipment",
+    "apps.parts",
+    "apps.knowledge",
+    "apps.repairs",
+    "apps.tasks",
 ]
 
 MIDDLEWARE = [
@@ -65,7 +74,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "ru"
-TIME_ZONE = "Europe/Moscow"
+TIME_ZONE = "Asia/Novosibirsk"
 USE_I18N = True
 USE_TZ = True
 
@@ -81,3 +90,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "login"
+
+MESSAGE_TAGS = {
+    message_constants.ERROR: "danger",
+}

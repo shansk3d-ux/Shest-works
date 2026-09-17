@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static client_extras %}
+
+{% block title %}{{ client.name }} — Опять работа?{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-start gap-2 mb-3">
+    <div class="d-flex align-items-center gap-3">
+        <img
+            src="{% static client|client_icon %}"
+            alt=""
+            width="64"
+            height="64"
+            class="client-icon client-icon-lg flex-shrink-0">
+        <div>
+            <h1 class="h3 mb-1">{{ client.name }}</h1>
+            <span class="badge text-bg-secondary">{{ client.get_client_type_display }}</span>
+        </div>
+    </div>
+    <div class="d-grid gap-2 d-sm-flex">
+        <a href="{% url 'repairs:wizard_equipment' client.pk %}" class="btn btn-primary">Создать заявку</a>
+        <a href="{% url 'clients:update' client.pk %}" class="btn btn-outline-secondary">Изменить</a>
+        <a href="{% url 'clients:delete' client.pk %}" class="btn btn-outline-danger">Удалить</a>
+    </div>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">ИНН</dt>
+    <dd class="col-sm-9">
+        {% if client.inn %}{{ client.inn }}{% else %}<span class="text-muted">не указан</span>{% endif %}
+    </dd>
+    <dt class="col-sm-3">Телефон</dt>
+    <dd class="col-sm-9">
+        {% if client.phone %}{{ client.phone }}{% else %}<span class="text-muted">не указан</span>{% endif %}
+    </dd>
+    {% if client.email %}
+    <dt class="col-sm-3">E-mail</dt>
+    <dd class="col-sm-9">{{ client.email }}</dd>
+    {% endif %}
+    {% if client.address %}
+    <dt class="col-sm-3">Адрес</dt>
+    <dd class="col-sm-9">{{ client.address }}</dd>
+    {% endif %}
+    {% if client.notes %}
+    <dt class="col-sm-3">Заметки</dt>
+    <dd class="col-sm-9">{{ client.notes|linebreaksbr }}</dd>
+    {% endif %}
+</dl>
+
+{% include "clients/_phone_actions.html" %}
+
+<div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+    <h2 class="h5 mb-0">Оборудование</h2>
+    <a href="{% url 'equipment:create' %}?client={{ client.pk }}" class="btn btn-sm btn-primary">
+        Добавить оборудование
+    </a>
+</div>
+
+{% if equipment_list %}
+<div class="list-group">
+    {% for item in equipment_list %}
+    <a href="{% url 'equipment:detail' item.pk %}" class="list-group-item list-group-item-action">
+        <div class="d-flex justify-content-between">
+            <span>{{ item.equipment_type }} — {{ item.brand }} {{ item.model }}</span>
+            {% if item.is_archived %}<span class="badge text-bg-secondary">В архиве</span>{% endif %}
+        </div>
+        {% if item.serial_number %}<div class="text-muted small">SN: {{ item.serial_number }}</div>{% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">У клиента пока нет оборудования.</p>
+{% endif %}
+{% endblock %}

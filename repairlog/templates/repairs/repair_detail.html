@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Заявка №{{ repair.pk }} — Опять работа?{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-start gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1">Заявка №{{ repair.pk }}</h1>
+        {% include "repairs/_status_badge.html" %}
+        {% if repair.is_archived %}<span class="badge text-bg-secondary">В архиве</span>{% endif %}
+    </div>
+    <div class="d-grid gap-2 d-sm-flex">
+        <a href="{% url 'repairs:update' repair.pk %}" class="btn btn-outline-secondary">Изменить</a>
+        {% if repair.is_archived %}
+        <form method="post" action="{% url 'repairs:restore' repair.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-success w-100">Вернуть из архива</button>
+        </form>
+        {% else %}
+        <a href="{% url 'repairs:archive' repair.pk %}" class="btn btn-outline-danger">В архив</a>
+        {% endif %}
+    </div>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Оборудование</dt>
+    <dd class="col-sm-9">
+        <a href="{% url 'equipment:detail' repair.equipment.pk %}">{{ repair.equipment }}</a>
+    </dd>
+    <dt class="col-sm-3">Клиент</dt>
+    <dd class="col-sm-9">
+        <a href="{% url 'clients:detail' repair.equipment.client.pk %}">{{ repair.equipment.client.name }}</a>
+    </dd>
+    <dt class="col-sm-3">Телефон клиента</dt>
+    <dd class="col-sm-9">
+        {% if repair.equipment.client.phone %}{{ repair.equipment.client.phone }}{% else %}<span class="text-muted">не указан</span>{% endif %}
+    </dd>
+    <dt class="col-sm-3">ИНН клиента</dt>
+    <dd class="col-sm-9">
+        {% if repair.equipment.client.inn %}{{ repair.equipment.client.inn }}{% else %}<span class="text-muted">не указан</span>{% endif %}
+    </dd>
+    <dt class="col-sm-3">Мастер</dt>
+    <dd class="col-sm-9">{{ repair.master.get_username }}</dd>
+    <dt class="col-sm-3">Дата обращения</dt>
+    <dd class="col-sm-9">{{ repair.reported_at }}</dd>
+    {% if repair.completed_at %}
+    <dt class="col-sm-3">Дата завершения</dt>
+    <dd class="col-sm-9">{{ repair.completed_at }}</dd>
+    {% endif %}
+    {% if repair.error_code %}
+    <dt class="col-sm-3">Код ошибки</dt>
+    <dd class="col-sm-9">{{ repair.error_code }}</dd>
+    {% endif %}
+    <dt class="col-sm-3">Симптом</dt>
+    <dd class="col-sm-9">{{ repair.symptom|linebreaksbr }}</dd>
+    {% if repair.diagnosis %}
+    <dt class="col-sm-3">Диагноз</dt>
+    <dd class="col-sm-9">{{ repair.diagnosis|linebreaksbr }}</dd>
+    {% endif %}
+    {% if repair.work_done %}
+    <dt class="col-sm-3">Выполненные работы</dt>
+    <dd class="col-sm-9">{{ repair.work_done|linebreaksbr }}</dd>
+    {% endif %}
+    {% if repair.fault %}
+    <dt class="col-sm-3">Типовая неисправность</dt>
+    <dd class="col-sm-9">{{ repair.fault }}</dd>
+    {% endif %}
+    <dt class="col-sm-3">Стоимость</dt>
+    <dd class="col-sm-9">
+        Работы: {{ repair.labor_cost }} ₽ · Запчасти: {{ repair.parts_cost }} ₽ · Итого: {{ repair.total_cost }} ₽
+    </dd>
+    {% if repair.warranty_until %}
+    <dt class="col-sm-3">Гарантия до</dt>
+    <dd class="col-sm-9">{{ repair.warranty_until }}</dd>
+    {% endif %}
+</dl>
+
+{% include "clients/_phone_actions.html" with client=repair.equipment.client %}
+
+<h2 class="h5 mt-4 mb-2">Изменить статус</h2>
+<form method="post" action="{% url 'repairs:status' repair.pk %}" class="row g-2 align-items-end mb-4">
+    {% csrf_token %}
+    <div class="col-12 col-sm-8">
+        <label for="{{ status_form.status.id_for_label }}" class="form-label">{{ status_form.status.label }}</label>
+        {{ status_form.status }}
+    </div>
+    <div class="col-12 col-sm-4">
+        <button type="submit" class="btn btn-primary btn-lg w-100">Обновить статус</button>
+    </div>
+</form>
+
+{% if repair.status == "done" %}
+<h2 class="h5 mt-4 mb-2">Счёт</h2>
+<div class="d-flex align-items-center gap-2 mb-4">
+    {% if repair.invoice_issued %}
+    <span class="badge text-bg-success">Счёт выставлен</span>
+    {% else %}
+    <span class="badge text-bg-danger">Счёт не выставлен</span>
+    {% endif %}
+    <form method="post" action="{% url 'repairs:invoice_toggle' repair.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-secondary btn-sm">
+            {% if repair.invoice_issued %}Отметить как не выставленный{% else %}Отметить как выставленный{% endif %}
+        </button>
+    </form>
+</div>
+{% endif %}
+
+<h2 class="h5 mt-4 mb-2">Фото</h2>
+{% if repair.photos.all %}
+<div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-2 mb-3">
+    {% for photo in repair.photos.all %}
+    <div class="col">
+        <div class="position-relative">
+            <a href="{{ photo.image.url }}" target="_blank" rel="noopener">
+                <img
+                    src="{{ photo.image.url }}"
+                    alt="{{ photo.caption }}"
+                    class="img-fluid rounded"
+                    style="aspect-ratio: 1 / 1; object-fit: cover; width: 100%;">
+            </a>
+            <span class="badge text-bg-dark position-absolute top-0 start-0 m-1">
+                {{ photo.get_stage_display }}
+            </span>
+            <form
+                method="post"
+                action="{% url 'repairs:photo_delete' photo.pk %}"
+                class="position-absolute top-0 end-0 m-1"
+                onsubmit="return confirm('Удалить фото?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-danger">×</button>
+            </form>
+        </div>
+        {% if photo.caption %}<div class="small text-muted mt-1">{{ photo.caption }}</div>{% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Фото пока нет.</p>
+{% endif %}
+
+<form
+    method="post"
+    action="{% url 'repairs:photo_upload' repair.pk %}"
+    enctype="multipart/form-data"
+    class="mb-4">
+    {% csrf_token %}
+    {% include "core/_form_fields.html" with form=photo_form %}
+    <button type="submit" class="btn btn-outline-primary">Загрузить фото</button>
+</form>
+
+<h2 class="h5 mt-4 mb-2">Запчасти по каталогу</h2>
+{% if repair.used_parts.all %}
+<div class="list-group mb-2">
+    {% for used_part in repair.used_parts.all %}
+    <div class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <a href="{% url 'parts:detail' used_part.part.pk %}">{{ used_part.part.name }}</a>
+            <span class="text-muted small">— {{ used_part.quantity }} × {{ used_part.price_at_use }} ₽</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="fw-semibold">{{ used_part.subtotal }} ₽</span>
+            <form
+                method="post"
+                action="{% url 'repairs:part_delete' used_part.pk %}"
+                onsubmit="return confirm('Убрать запчасть из заявки?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">Убрать</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<p class="text-muted small">Итого по каталогу: {{ repair.catalog_parts_cost }} ₽</p>
+{% else %}
+<p class="text-muted">Запчасти из каталога пока не добавлены.</p>
+{% endif %}
+
+<form method="post" action="{% url 'repairs:part_add' repair.pk %}" class="row g-2 align-items-end mb-4">
+    {% csrf_token %}
+    <div class="col-12 col-sm-7">
+        <label for="{{ part_form.part.id_for_label }}" class="form-label">{{ part_form.part.label }}</label>
+        {{ part_form.part }}
+    </div>
+    <div class="col-8 col-sm-3">
+        <label for="{{ part_form.quantity.id_for_label }}" class="form-label">{{ part_form.quantity.label }}</label>
+        {{ part_form.quantity }}
+    </div>
+    <div class="col-4 col-sm-2">
+        <button type="submit" class="btn btn-outline-primary w-100">Добавить</button>
+    </div>
+    <div id="repair-part-new-fields" class="col-12 row g-2 {% if part_form.part.value != "__new__" %}d-none{% endif %}">
+        <div class="col-12 col-sm-5">
+            {% include "core/_single_form_field.html" with field=part_form.part_new_name %}
+        </div>
+        <div class="col-6 col-sm-3">
+            {% include "core/_single_form_field.html" with field=part_form.part_new_kind %}
+        </div>
+        <div class="col-6 col-sm-4">
+            {% include "core/_single_form_field.html" with field=part_form.part_new_price %}
+        </div>
+    </div>
+</form>
+
+<script>
+bindNewOptionToggle("id_part", "repair-part-new-fields");
+</script>
+{% endblock %}

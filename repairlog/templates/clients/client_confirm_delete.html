@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Удалить клиента — Опять работа?{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Удалить клиента «{{ client.name }}»?</h1>
+{% if client.equipment.exists %}
+<div class="alert alert-warning">
+    У клиента есть оборудование ({{ client.equipment.count }}) — вместе с ним будут удалены
+    связанные ремонты и записи.
+</div>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger btn-lg">Да, удалить</button>
+    <a href="{% url 'clients:detail' client.pk %}" class="btn btn-outline-secondary btn-lg">Отмена</a>
+</form>
+{% endblock %}

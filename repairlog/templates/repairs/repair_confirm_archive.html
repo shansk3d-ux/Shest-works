@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}В архив — Опять работа?{% endblock %}
+
+{% block content %}
+<h1 class="h3 mb-3">Перенести в архив заявку №{{ repair.pk }}?</h1>
+<p class="text-muted">Заявка останется в базе, но перестанет отображаться в общих списках.</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger btn-lg">Да, в архив</button>
+    <a href="{% url 'repairs:detail' repair.pk %}" class="btn btn-outline-secondary btn-lg">Отмена</a>
+</form>
+{% endblock %}

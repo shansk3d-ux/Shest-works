@@ -1,0 +1,25 @@
+{% if faults %}
+<div class="mt-2">
+    <div class="small text-muted mb-1">Похожие случаи из базы знаний:</div>
+    <div class="list-group">
+        {% for fault in faults %}
+        <div class="list-group-item list-group-item-action py-2">
+            <div class="d-flex justify-content-between">
+                <span class="fw-semibold">
+                    {% if fault.error_code %}{{ fault.error_code }}{% else %}Без кода{% endif %}
+                    {% if fault.brand %} · {{ fault.brand }}{% endif %}
+                </span>
+                {% if fault.repairs_count %}
+                <span class="badge text-bg-secondary">Встречалось: {{ fault.repairs_count }}</span>
+                {% endif %}
+            </div>
+            <div class="text-muted small">{{ fault.symptom|truncatechars:120 }}</div>
+            <div class="small mt-1"><strong>Причина:</strong> {{ fault.cause|truncatechars:150 }}</div>
+            <div class="small"><strong>Решение:</strong> {{ fault.solution|truncatechars:150 }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% elif searched %}
+<p class="text-muted small mt-2 mb-0">Похожих случаев в базе знаний не найдено.</p>
+{% endif %}

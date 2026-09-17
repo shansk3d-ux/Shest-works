@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{ equipment.model }} — Опять работа?{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-start gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1">{{ equipment.equipment_type }} {{ equipment.brand }} {{ equipment.model }}</h1>
+        {% if equipment.is_archived %}<span class="badge text-bg-secondary">В архиве</span>{% endif %}
+    </div>
+    <div class="d-grid gap-2 d-sm-flex">
+        {% if not equipment.is_archived %}
+        <a
+            href="{% url 'repairs:create' %}?client={{ equipment.client.pk }}&equipment={{ equipment.pk }}"
+            class="btn btn-primary">
+            Создать заявку
+        </a>
+        {% endif %}
+        <a href="{% url 'equipment:update' equipment.pk %}" class="btn btn-outline-secondary">Изменить</a>
+        {% if equipment.is_archived %}
+        <form method="post" action="{% url 'equipment:restore' equipment.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-success w-100">Вернуть из архива</button>
+        </form>
+        {% else %}
+        <a href="{% url 'equipment:archive' equipment.pk %}" class="btn btn-outline-danger">В архив</a>
+        {% endif %}
+    </div>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Клиент</dt>
+    <dd class="col-sm-9">
+        <a href="{% url 'clients:detail' equipment.client.pk %}">{{ equipment.client.name }}</a>
+    </dd>
+    {% if equipment.serial_number %}
+    <dt class="col-sm-3">Серийный номер</dt>
+    <dd class="col-sm-9">{{ equipment.serial_number }}</dd>
+    {% endif %}
+    {% if equipment.year %}
+    <dt class="col-sm-3">Год выпуска</dt>
+    <dd class="col-sm-9">{{ equipment.year }}</dd>
+    {% endif %}
+    {% if equipment.location %}
+    <dt class="col-sm-3">Место установки</dt>
+    <dd class="col-sm-9">{{ equipment.location }}</dd>
+    {% endif %}
+    {% if equipment.notes %}
+    <dt class="col-sm-3">Заметки</dt>
+    <dd class="col-sm-9">{{ equipment.notes|linebreaksbr }}</dd>
+    {% endif %}
+</dl>
+
+<h2 class="h5 mt-4 mb-2">История ремонтов</h2>
+{% if repairs %}
+<div class="list-group">
+    {% for repair in repairs %}
+    <a href="{% url 'repairs:detail' repair.pk %}" class="list-group-item list-group-item-action">
+        <div class="d-flex justify-content-between">
+            <span>{{ repair.reported_at }} — {{ repair.get_status_display }}</span>
+        </div>
+        <div class="text-muted small">{{ repair.symptom|truncatechars:120 }}</div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Ремонтов пока не было.</p>
+{% endif %}
+{% endblock %}

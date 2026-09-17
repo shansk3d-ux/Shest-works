@@ -1,0 +1,17 @@
+{% if characteristic_types %}
+<optgroup label="Характерно для {{ brand_name }}">
+    {% for type in characteristic_types %}
+    <option value="{{ type.name }}" {% if type.name == selected_type %}selected{% endif %}>{{ type.name }}</option>
+    {% endfor %}
+</optgroup>
+<optgroup label="Остальные типы">
+    {% for type in other_types %}
+    <option value="{{ type.name }}" {% if type.name == selected_type %}selected{% endif %}>{{ type.name }}</option>
+    {% endfor %}
+</optgroup>
+{% else %}
+{% for type in other_types %}
+<option value="{{ type.name }}" {% if type.name == selected_type %}selected{% endif %}>{{ type.name }}</option>
+{% endfor %}
+{% endif %}
+<option value="__new__" {% if selected_type == "__new__" %}selected{% endif %}>+ Новый тип оборудования…</option>

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Оборудование — Опять работа?{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Оборудование</h1>
+    <a href="{% url 'equipment:create' %}" class="btn btn-primary">Добавить оборудование</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-12">
+        <input
+            type="search"
+            name="q"
+            value="{{ query }}"
+            class="form-control form-control-lg"
+            placeholder="Поиск по модели, серийнику, адресу, клиенту">
+    </div>
+    <div class="col-6">
+        <select name="equipment_type" class="form-select">
+            <option value="">Все типы</option>
+            {% for type in equipment_types %}
+            <option value="{{ type.pk }}" {% if selected_equipment_type == type.pk|stringformat:"s" %}selected{% endif %}>
+                {{ type.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-6">
+        <select name="brand" class="form-select">
+            <option value="">Все бренды</option>
+            {% for brand in brands %}
+            <option value="{{ brand.pk }}" {% if selected_brand == brand.pk|stringformat:"s" %}selected{% endif %}>
+                {{ brand.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-12 form-check">
+        <input
+            type="checkbox"
+            name="archived"
+            value="1"
+            id="archivedCheck"
+            class="form-check-input"
+            {% if show_archived %}checked{% endif %}>
+        <label class="form-check-label" for="archivedCheck">Показать архивные</label>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-outline-secondary">Применить</button>
+    </div>
+</form>
+
+{% if equipment_list %}
+<div class="list-group mb-3">
+    {% for item in equipment_list %}
+    <a href="{% url 'equipment:detail' item.pk %}" class="list-group-item list-group-item-action">
+        <div class="d-flex justify-content-between">
+            <span>{{ item.equipment_type }} — {{ item.brand }} {{ item.model }}</span>
+            {% if item.is_archived %}<span class="badge text-bg-secondary">В архиве</span>{% endif %}
+        </div>
+        <div class="text-muted small">
+            {{ item.client.name }}{% if item.serial_number %} · SN: {{ item.serial_number }}{% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Оборудование не найдено.</p>
+{% endif %}
+
+{% include "core/_pagination.html" %}
+{% endblock %}

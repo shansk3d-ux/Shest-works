@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}RepairLog — учёт ремонтов{% endblock %}
+{% block title %}Опять работа? — учёт ремонтов{% endblock %}
 
 {% block content %}
 <div class="text-center py-5">
-    <h1 class="display-5">RepairLog</h1>
+    <h1 class="display-5">Здравствуйте, {{ user.get_username }}!</h1>
     <p class="lead text-muted">
         Учёт ремонтов кухонного, бытового, промышленного и ресторанного оборудования.
     </p>
-    <p class="text-secondary">Каркас проекта развёрнут и готов к разработке.</p>
 </div>
 {% endblock %}

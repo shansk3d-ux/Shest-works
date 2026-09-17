@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Заявки — Опять работа?{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Заявки</h1>
+    <div class="d-grid gap-2 d-sm-flex">
+        {% include "core/_nalog_button.html" with inn="" only %}
+        <a href="{% url 'repairs:wizard_client' %}" class="btn btn-primary">Новая заявка</a>
+    </div>
+</div>
+
+<form method="get" class="mb-3">
+    {% include "core/_form_fields.html" with form=filter.form %}
+    <div class="form-check mb-3">
+        <input
+            type="checkbox"
+            name="archived"
+            value="1"
+            id="archivedCheck"
+            class="form-check-input"
+            {% if show_archived %}checked{% endif %}>
+        <label class="form-check-label" for="archivedCheck">Показать архивные</label>
+    </div>
+    <button type="submit" class="btn btn-outline-secondary">Применить фильтры</button>
+</form>
+
+<div class="d-flex gap-2 mb-3">
+    <a
+        href="{% url 'repairs:export_csv' %}?{{ request.GET.urlencode }}"
+        class="btn btn-outline-secondary btn-sm">
+        Экспорт CSV
+    </a>
+    <a
+        href="{% url 'repairs:export_xlsx' %}?{{ request.GET.urlencode }}"
+        class="btn btn-outline-secondary btn-sm">
+        Экспорт Excel
+    </a>
+</div>
+
+{% if repairs %}
+<div class="list-group mb-3">
+    {% for repair in repairs %}
+    <a
+        href="{% url 'repairs:detail' repair.pk %}"
+        class="list-group-item list-group-item-action repair-row-{{ repair.status }}">
+        <div class="d-flex justify-content-between">
+            <span class="fw-semibold">№{{ repair.pk }} — {{ repair.equipment }}</span>
+            {% include "repairs/_status_badge.html" %}
+        </div>
+        <div class="text-muted small">
+            {{ repair.equipment.client.name }} · {{ repair.reported_at }}
+            {% if repair.error_code %} · код {{ repair.error_code }}{% endif %}
+        </div>
+        <div class="text-muted small">{{ repair.symptom|truncatechars:120 }}</div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Заявки не найдены.</p>
+{% endif %}
+
+{% include "core/_pagination.html" %}
+{% endblock %}
