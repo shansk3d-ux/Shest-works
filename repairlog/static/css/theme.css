@@ -170,11 +170,12 @@ main.container {
         var(--wc-rivet) 10px calc(100% - 10px) / 14px 14px no-repeat,
         var(--wc-rivet) calc(100% - 10px) calc(100% - 10px) / 14px 14px no-repeat,
         linear-gradient(180deg, rgba(36, 26, 16, 0.55), rgba(16, 10, 6, 0.35));
-    border: 1px solid var(--wc-border);
-    border-radius: 4px;
+    border: 3px solid var(--wc-gold-dim);
+    border-radius: 6px;
     box-shadow:
         inset 0 0 60px rgba(0, 0, 0, 0.35),
-        0 0 0 1px var(--wc-gold-dim),
+        inset 0 0 0 2px #000,
+        0 0 0 1px var(--wc-border),
         0 6px 20px rgba(0, 0, 0, 0.45);
     padding: 2rem !important;
     margin-top: 1rem;
@@ -185,7 +186,7 @@ main.container {
     text-transform: uppercase;
     font-size: 0.85rem;
     letter-spacing: 0.05em;
-    border-radius: 4px;
+    border-radius: 7px;
     border: 2px solid var(--wc-steel-dark);
     background: linear-gradient(180deg, var(--wc-steel-light) 0%, var(--wc-steel) 45%, var(--wc-steel-dark) 100%);
     color: #d7e2f2;
@@ -315,16 +316,32 @@ main.container {
     filter: invert(1) sepia(1) saturate(3) hue-rotate(-10deg);
 }
 
-/* --- List groups: unit/quest list styling --- */
+/* --- List groups: mission-select menu button styling --- */
+.list-group {
+    gap: 0.55rem;
+}
 .list-group-item {
-    background: var(--wc-panel);
-    border-color: var(--wc-border);
+    background: linear-gradient(180deg, var(--wc-panel-light) 0%, var(--wc-panel) 55%, #140d06 100%);
+    border: 2px solid var(--wc-steel-dark) !important;
+    border-radius: 50rem !important;
+    margin-top: 0 !important;
+    padding: 0.65rem 1.35rem;
     color: var(--wc-text);
+    box-shadow:
+        0 0 0 1px var(--wc-gold-dim),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -2px 6px rgba(0, 0, 0, 0.55),
+        0 2px 4px rgba(0, 0, 0, 0.5);
 }
 .list-group-item-action:hover,
 .list-group-item-action:focus {
-    background: var(--wc-panel-light);
+    background: linear-gradient(180deg, #3a2c18 0%, var(--wc-panel-light) 55%, #1c130a 100%);
     color: var(--wc-gold-bright);
+    box-shadow:
+        0 0 0 1px var(--wc-gold),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        inset 0 -2px 6px rgba(0, 0, 0, 0.55),
+        0 0 12px rgba(244, 217, 138, 0.35);
 }
 
 /* --- Forms --- */
@@ -371,8 +388,11 @@ thead {
 /* --- Cards (future-proofing) --- */
 .card {
     background: var(--wc-panel);
-    border: 1px solid var(--wc-border);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: 2px solid var(--wc-gold-dim);
+    border-radius: 6px;
+    box-shadow:
+        inset 0 0 0 2px #000,
+        0 4px 12px rgba(0, 0, 0, 0.4);
 }
 .card-header {
     background: var(--wc-panel-light);
