@@ -39,7 +39,9 @@
 {% if repairs %}
 <div class="list-group mb-3">
     {% for repair in repairs %}
-    <a href="{% url 'repairs:detail' repair.pk %}" class="list-group-item list-group-item-action">
+    <a
+        href="{% url 'repairs:detail' repair.pk %}"
+        class="list-group-item list-group-item-action repair-row-{{ repair.status }}">
         <div class="d-flex justify-content-between">
             <span class="fw-semibold">№{{ repair.pk }} — {{ repair.equipment }}</span>
             {% include "repairs/_status_badge.html" %}

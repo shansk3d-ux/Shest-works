@@ -27,6 +27,19 @@
     --wc-steel-dark: #0a0f18;
     --wc-steel: #16233a;
     --wc-steel-light: #3a577f;
+    /* Mission-select accent colours: each menu entry carries its own hue
+       on both its border and its text, the way the campaign screen does. */
+    --wc-acc-red: #d6493a;
+    --wc-acc-amber: #e8a33d;
+    --wc-acc-blue: #4a9fd8;
+    --wc-acc-teal: #3fb0a8;
+    --wc-acc-green: #74b048;
+    --wc-acc-bone: #ded7c4;
+    --wc-acc-grey: #8b8578;
+    --wc-acc-purple: #b463d6;
+    --wc-inner: linear-gradient(180deg, #0d0906 0%, #070504 100%);
+    --wc-bracket:
+        linear-gradient(145deg, #5a5a5a 0%, #333 38%, #1a1a1a 72%, #0c0c0c 100%);
     --wc-rivet:
         radial-gradient(
             circle at 35% 30%,
@@ -55,7 +68,7 @@ html {
 
 body {
     background:
-        radial-gradient(ellipse at top, #241a10 0%, var(--wc-bg) 55%, #050302 100%),
+        radial-gradient(ellipse at top, #16100a 0%, #090603 55%, #000 100%),
         repeating-linear-gradient(
             0deg,
             rgba(0, 0, 0, 0.15) 0px,
@@ -163,106 +176,123 @@ a:hover {
     filter: sepia(1) saturate(3) hue-rotate(-10deg) brightness(1.1);
 }
 
+/* --- Main panel: wooden mission-board frame with iron corner brackets --- */
 main.container {
     background:
-        var(--wc-rivet) 10px 10px / 14px 14px no-repeat,
-        var(--wc-rivet) calc(100% - 10px) 10px / 14px 14px no-repeat,
-        var(--wc-rivet) 10px calc(100% - 10px) / 14px 14px no-repeat,
-        var(--wc-rivet) calc(100% - 10px) calc(100% - 10px) / 14px 14px no-repeat,
-        linear-gradient(180deg, rgba(36, 26, 16, 0.55), rgba(16, 10, 6, 0.35));
-    border: 3px solid var(--wc-gold-dim);
-    border-radius: 6px;
+        /* rivet in the middle of each corner bracket */
+        var(--wc-rivet) 17px 17px / 9px 9px no-repeat,
+        var(--wc-rivet) calc(100% - 17px) 17px / 9px 9px no-repeat,
+        var(--wc-rivet) 17px calc(100% - 17px) / 9px 9px no-repeat,
+        var(--wc-rivet) calc(100% - 17px) calc(100% - 17px) / 9px 9px no-repeat,
+        /* iron brackets bolted over the four corners of the frame */
+        var(--wc-bracket) 0 0 / 34px 34px no-repeat,
+        var(--wc-bracket) 100% 0 / 34px 34px no-repeat,
+        var(--wc-bracket) 0 100% / 34px 34px no-repeat,
+        var(--wc-bracket) 100% 100% / 34px 34px no-repeat,
+        /* the dark board itself, inset so the timber frame shows around it */
+        var(--wc-inner) 14px 14px / calc(100% - 28px) calc(100% - 28px) no-repeat,
+        /* timber grain + base */
+        repeating-linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.32) 0 2px,
+            transparent 2px 7px
+        ),
+        linear-gradient(180deg, #4d3619 0%, #35240f 48%, #221607 100%);
+    border: none;
+    border-radius: 8px;
     box-shadow:
-        inset 0 0 60px rgba(0, 0, 0, 0.35),
-        inset 0 0 0 2px #000,
-        0 0 0 1px var(--wc-border),
-        0 6px 20px rgba(0, 0, 0, 0.45);
-    padding: 2rem !important;
+        0 0 0 2px #0d0904,
+        inset 0 0 0 1px rgba(244, 217, 138, 0.18),
+        0 12px 32px rgba(0, 0, 0, 0.75);
+    padding: 2.6rem !important;
     margin-top: 1rem;
 }
 
-/* --- Buttons: riveted metal-bar styling (menu button reference) --- */
+/* --- Buttons: mission-select menu entries — near-black plate, accent
+       border, and label in the very same accent colour. --- */
 .btn {
+    --wc-acc: var(--wc-acc-bone);
     text-transform: uppercase;
     font-size: 0.85rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     border-radius: 7px;
-    border: 2px solid var(--wc-steel-dark);
-    background: linear-gradient(180deg, var(--wc-steel-light) 0%, var(--wc-steel) 45%, var(--wc-steel-dark) 100%);
-    color: #d7e2f2;
+    border: 1px solid var(--wc-acc);
+    background: linear-gradient(180deg, #16110b 0%, #0a0705 55%, #050303 100%);
+    color: var(--wc-acc);
+    text-shadow: 0 1px 2px #000;
     box-shadow:
-        0 0 0 1px var(--wc-gold-dim),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2),
-        inset 0 -2px 5px rgba(0, 0, 0, 0.6),
-        0 2px 4px rgba(0, 0, 0, 0.6);
-    transition: filter 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+        inset 0 0 14px rgba(0, 0, 0, 0.9),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 1px 3px rgba(0, 0, 0, 0.7);
+    transition: color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
 }
-.btn:hover {
-    filter: brightness(1.15);
+.btn:hover,
+.btn:focus {
+    color: #fff;
+    border-color: #fff;
     box-shadow:
-        0 0 0 1px var(--wc-gold),
-        inset 0 1px 0 rgba(255, 255, 255, 0.28),
-        inset 0 -2px 5px rgba(0, 0, 0, 0.6),
-        0 0 10px rgba(244, 217, 138, 0.35);
+        inset 0 0 16px rgba(0, 0, 0, 0.9),
+        0 0 12px color-mix(in srgb, var(--wc-acc) 55%, transparent);
 }
 .btn:active {
     transform: translateY(1px);
-    box-shadow:
-        0 0 0 1px var(--wc-gold-dim),
-        inset 0 2px 6px rgba(0, 0, 0, 0.75);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.9);
 }
 
 .btn-primary,
+.btn-outline-primary { --wc-acc: var(--wc-acc-blue); }
+.btn-success,
+.btn-outline-success { --wc-acc: var(--wc-acc-green); }
+.btn-danger,
+.btn-outline-danger { --wc-acc: var(--wc-acc-red); }
+.btn-warning,
+.btn-outline-warning { --wc-acc: var(--wc-acc-amber); }
+.btn-secondary,
+.btn-outline-secondary { --wc-acc: var(--wc-acc-grey); }
+.btn-info,
+.btn-outline-info { --wc-acc: var(--wc-acc-teal); }
+.btn-light,
+.btn-outline-light,
+.btn-dark { --wc-acc: var(--wc-acc-bone); }
+
+/* Bootstrap ships its own colours on these; ours has to win. */
+.btn-primary,
 .btn-success,
 .btn-danger,
-.btn-warning {
-    color: #f2ead2 !important;
-    border-color: var(--wc-steel-dark) !important;
-}
-.btn-primary {
-    background: linear-gradient(180deg, var(--wc-blue-bright) 0%, var(--wc-blue) 45%, var(--wc-steel-dark) 100%) !important;
-}
-.btn-success {
-    background: linear-gradient(180deg, var(--wc-green-bright) 0%, var(--wc-green) 45%, #16240e 100%) !important;
-}
-.btn-danger {
-    background: linear-gradient(180deg, var(--wc-red-bright) 0%, var(--wc-red) 45%, #1e0505 100%) !important;
-}
-.btn-warning {
-    background: linear-gradient(180deg, #d9a542 0%, #96631d 45%, #2b1d0a 100%) !important;
-    color: #1b1206 !important;
-}
-
-.btn-outline-light,
+.btn-warning,
+.btn-secondary,
+.btn-info,
+.btn-light,
+.btn-dark,
 .btn-outline-primary,
-.btn-outline-secondary,
 .btn-outline-success,
-.btn-outline-danger {
-    background: linear-gradient(180deg, #2a2013 0%, var(--wc-steel-dark) 100%);
-    color: var(--wc-text) !important;
-}
-.btn-outline-light,
-.btn-outline-primary,
+.btn-outline-danger,
+.btn-outline-warning,
 .btn-outline-secondary,
-.btn-outline-success,
-.btn-outline-danger {
-    border-color: var(--wc-steel-dark) !important;
-    box-shadow:
-        0 0 0 1px var(--wc-ring, var(--wc-gold-dim)),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12),
-        inset 0 -2px 5px rgba(0, 0, 0, 0.6),
-        0 2px 4px rgba(0, 0, 0, 0.6);
+.btn-outline-info,
+.btn-outline-light {
+    background: linear-gradient(180deg, #16110b 0%, #0a0705 55%, #050303 100%) !important;
+    border-color: var(--wc-acc) !important;
+    color: var(--wc-acc) !important;
 }
-.btn-outline-light { --wc-ring: var(--wc-gold); }
-.btn-outline-light:hover { background: var(--wc-gold-dim) !important; }
-.btn-outline-primary { --wc-ring: var(--wc-blue-bright); }
-.btn-outline-primary:hover { background: var(--wc-blue) !important; }
-.btn-outline-secondary { --wc-ring: var(--wc-text-muted-solid); }
-.btn-outline-secondary:hover { background: #3a2f1e !important; }
-.btn-outline-success { --wc-ring: var(--wc-green-bright); }
-.btn-outline-success:hover { background: var(--wc-green) !important; }
-.btn-outline-danger { --wc-ring: var(--wc-red-bright); }
-.btn-outline-danger:hover { background: var(--wc-red) !important; }
+.btn-primary:hover,
+.btn-success:hover,
+.btn-danger:hover,
+.btn-warning:hover,
+.btn-secondary:hover,
+.btn-info:hover,
+.btn-light:hover,
+.btn-dark:hover,
+.btn-outline-primary:hover,
+.btn-outline-success:hover,
+.btn-outline-danger:hover,
+.btn-outline-warning:hover,
+.btn-outline-secondary:hover,
+.btn-outline-info:hover,
+.btn-outline-light:hover {
+    border-color: #fff !important;
+    color: #fff !important;
+}
 
 /* --- Client portraits: unit-portrait frame styling --- */
 .client-icon {
@@ -302,8 +332,8 @@ main.container {
 
 /* --- Alerts: scroll/quest-log styling --- */
 .alert {
-    background: var(--wc-panel);
-    border: 1px solid var(--wc-border);
+    background: linear-gradient(180deg, #14100a 0%, #090705 100%);
+    border: 1px solid var(--wc-gold-dim);
     border-left-width: 4px;
     color: var(--wc-text);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -316,50 +346,88 @@ main.container {
     filter: invert(1) sepia(1) saturate(3) hue-rotate(-10deg);
 }
 
-/* --- List groups: mission-select menu button styling --- */
+/* --- List groups: the campaign menu itself — each row is a near-black
+       capsule outlined in its own colour, with its title in that colour. --- */
 .list-group {
-    gap: 0.55rem;
+    gap: 0.45rem;
 }
 .list-group-item {
-    background: linear-gradient(180deg, var(--wc-panel-light) 0%, var(--wc-panel) 55%, #140d06 100%);
-    border: 2px solid var(--wc-steel-dark) !important;
-    border-radius: 50rem !important;
+    --wc-acc: var(--wc-acc-amber);
+    background: linear-gradient(180deg, #14100a 0%, #090705 60%, #050303 100%) !important;
+    border: 1px solid var(--wc-acc) !important;
+    border-radius: 9px !important;
     margin-top: 0 !important;
-    padding: 0.65rem 1.35rem;
+    padding: 0.6rem 1.15rem;
     color: var(--wc-text);
     box-shadow:
-        0 0 0 1px var(--wc-gold-dim),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1),
-        inset 0 -2px 6px rgba(0, 0, 0, 0.55),
-        0 2px 4px rgba(0, 0, 0, 0.5);
+        inset 0 0 18px rgba(0, 0, 0, 0.9),
+        0 1px 3px rgba(0, 0, 0, 0.7);
+}
+/* The row's headline takes the accent colour, the way each campaign
+   entry's name is tinted to match its own frame. */
+.list-group-item .fw-semibold,
+.list-group-item > a:first-child {
+    color: var(--wc-acc);
+    text-shadow: 0 1px 2px #000;
 }
 .list-group-item-action:hover,
 .list-group-item-action:focus {
-    background: linear-gradient(180deg, #3a2c18 0%, var(--wc-panel-light) 55%, #1c130a 100%);
-    color: var(--wc-gold-bright);
+    background: linear-gradient(180deg, #1d1710 0%, #100c08 60%, #070505 100%) !important;
+    border-color: #fff !important;
+    color: var(--wc-text);
     box-shadow:
-        0 0 0 1px var(--wc-gold),
-        inset 0 1px 0 rgba(255, 255, 255, 0.16),
-        inset 0 -2px 6px rgba(0, 0, 0, 0.55),
-        0 0 12px rgba(244, 217, 138, 0.35);
+        inset 0 0 18px rgba(0, 0, 0, 0.9),
+        0 0 12px color-mix(in srgb, var(--wc-acc) 55%, transparent);
 }
+.list-group-item-action:hover .fw-semibold,
+.list-group-item-action:focus .fw-semibold {
+    color: #fff;
+}
+
+/* Repair rows carry their status colour, so the list reads as a spread of
+   hues exactly like the mission board. */
+.repair-row-new { --wc-acc: var(--wc-acc-blue); }
+.repair-row-diagnostics { --wc-acc: var(--wc-acc-teal); }
+.repair-row-awaiting_parts,
+.repair-row-in_progress { --wc-acc: var(--wc-acc-amber); }
+.repair-row-done { --wc-acc: var(--wc-acc-green); }
+.repair-row-rejected { --wc-acc: var(--wc-acc-grey); }
 
 /* --- Forms --- */
 .form-control,
 .form-select {
-    background-color: var(--wc-panel);
-    border: 1px solid var(--wc-border);
+    background-color: #0b0806;
+    border: 1px solid var(--wc-gold-dim);
+    border-radius: 7px;
     color: var(--wc-text);
+    box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.9);
 }
 .form-control:focus,
 .form-select:focus {
-    background-color: var(--wc-panel);
+    background-color: #0b0806;
     color: var(--wc-text);
     border-color: var(--wc-gold);
-    box-shadow: 0 0 0 0.2rem rgba(207, 159, 63, 0.3);
+    box-shadow:
+        inset 0 0 14px rgba(0, 0, 0, 0.9),
+        0 0 0 0.2rem rgba(207, 159, 63, 0.25);
 }
 .form-control::placeholder {
     color: var(--wc-text-muted);
+}
+.form-control::file-selector-button {
+    background: linear-gradient(180deg, #16110b 0%, #0a0705 100%);
+    border: 1px solid var(--wc-gold-dim);
+    border-radius: 5px;
+    color: var(--wc-gold-bright);
+    font-family: "Cinzel", serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-inline-end: 0.75rem;
+}
+.form-control::file-selector-button:hover {
+    border-color: #fff;
+    color: #fff;
 }
 .form-check-input {
     background-color: var(--wc-panel);
