@@ -85,6 +85,23 @@
     </div>
 </form>
 
+{% if repair.status == "done" %}
+<h2 class="h5 mt-4 mb-2">Счёт</h2>
+<div class="d-flex align-items-center gap-2 mb-4">
+    {% if repair.invoice_issued %}
+    <span class="badge text-bg-success">Счёт выставлен</span>
+    {% else %}
+    <span class="badge text-bg-danger">Счёт не выставлен</span>
+    {% endif %}
+    <form method="post" action="{% url 'repairs:invoice_toggle' repair.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-secondary btn-sm">
+            {% if repair.invoice_issued %}Отметить как не выставленный{% else %}Отметить как выставленный{% endif %}
+        </button>
+    </form>
+</div>
+{% endif %}
+
 <h2 class="h5 mt-4 mb-2">Фото</h2>
 {% if repair.photos.all %}
 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-2 mb-3">

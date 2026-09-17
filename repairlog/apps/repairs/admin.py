@@ -24,9 +24,10 @@ class RepairAdmin(admin.ModelAdmin):
         "reported_at",
         "completed_at",
         "total_cost",
+        "invoice_issued",
         "is_archived",
     )
-    list_filter = ("status", "master", "is_archived")
+    list_filter = ("status", "master", "invoice_issued", "is_archived")
     search_fields = (
         "error_code",
         "symptom",

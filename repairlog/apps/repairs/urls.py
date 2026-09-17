@@ -18,6 +18,11 @@ urlpatterns = [
     path("<int:pk>/", views.RepairDetailView.as_view(), name="detail"),
     path("<int:pk>/edit/", views.RepairUpdateView.as_view(), name="update"),
     path("<int:pk>/status/", views.RepairStatusUpdateView.as_view(), name="status"),
+    path(
+        "<int:pk>/invoice/toggle/",
+        views.RepairInvoiceToggleView.as_view(),
+        name="invoice_toggle",
+    ),
     path("<int:pk>/archive/", views.RepairArchiveView.as_view(), name="archive"),
     path("<int:pk>/restore/", views.RepairRestoreView.as_view(), name="restore"),
     path("<int:pk>/photos/", views.RepairPhotoUploadView.as_view(), name="photo_upload"),

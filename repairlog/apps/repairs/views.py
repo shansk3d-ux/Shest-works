@@ -244,6 +244,14 @@ class RepairStatusUpdateView(LoginRequiredMixin, generic.View):
         return redirect("repairs:detail", pk=repair.pk)
 
 
+class RepairInvoiceToggleView(LoginRequiredMixin, generic.View):
+    def post(self, request, pk):
+        repair = get_object_or_404(Repair, pk=pk)
+        repair.invoice_issued = not repair.invoice_issued
+        repair.save(update_fields=["invoice_issued"])
+        return redirect("repairs:detail", pk=repair.pk)
+
+
 class RepairArchiveView(LoginRequiredMixin, generic.DeleteView):
     """Soft-deletes a repair: a confirmed POST flips is_archived instead of removing the row."""
 

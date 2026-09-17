@@ -269,6 +269,64 @@ class RepairDetailViewTests(RepairViewsTestCase):
             f'data-edit-url="{reverse("clients:update", args=[client_without_phone.pk])}"',
         )
 
+    def test_hides_invoice_section_before_completion(self):
+        repair = Repair.objects.create(
+            equipment=self.equipment,
+            master=self.user,
+            reported_at=timezone.localdate(),
+            symptom="Не набирает температуру",
+            status=Repair.Status.IN_PROGRESS,
+        )
+        response = self.client.get(reverse("repairs:detail", args=[repair.pk]))
+        self.assertNotContains(response, "Счёт выставлен")
+        self.assertNotContains(response, "Счёт не выставлен")
+
+    def test_shows_invoice_status_after_completion(self):
+        repair = Repair.objects.create(
+            equipment=self.equipment,
+            master=self.user,
+            reported_at=timezone.localdate(),
+            symptom="Не набирает температуру",
+            status=Repair.Status.DONE,
+        )
+        response = self.client.get(reverse("repairs:detail", args=[repair.pk]))
+        self.assertContains(response, "Счёт не выставлен")
+
+        repair.invoice_issued = True
+        repair.save(update_fields=["invoice_issued"])
+        response = self.client.get(reverse("repairs:detail", args=[repair.pk]))
+        self.assertContains(response, "Счёт выставлен")
+
+
+class RepairInvoiceToggleViewTests(RepairViewsTestCase):
+    def setUp(self):
+        super().setUp()
+        self.repair = Repair.objects.create(
+            equipment=self.equipment,
+            master=self.user,
+            reported_at=timezone.localdate(),
+            symptom="Не набирает температуру",
+            status=Repair.Status.DONE,
+        )
+
+    def test_requires_login(self):
+        self.client.logout()
+        response = self.client.post(reverse("repairs:invoice_toggle", args=[self.repair.pk]))
+        self.assertEqual(response.status_code, 302)
+
+    def test_toggles_invoice_issued_on(self):
+        response = self.client.post(reverse("repairs:invoice_toggle", args=[self.repair.pk]))
+        self.assertRedirects(response, reverse("repairs:detail", args=[self.repair.pk]))
+        self.repair.refresh_from_db()
+        self.assertTrue(self.repair.invoice_issued)
+
+    def test_toggles_invoice_issued_off_again(self):
+        self.repair.invoice_issued = True
+        self.repair.save(update_fields=["invoice_issued"])
+        self.client.post(reverse("repairs:invoice_toggle", args=[self.repair.pk]))
+        self.repair.refresh_from_db()
+        self.assertFalse(self.repair.invoice_issued)
+
 
 class RepairUpdateViewTests(RepairViewsTestCase):
     def test_updates_repair(self):

@@ -39,6 +39,7 @@ class Repair(TimeStampedModel):
     )
     reported_at = models.DateField("Дата обращения")
     completed_at = models.DateField("Дата завершения", null=True, blank=True)
+    invoice_issued = models.BooleanField("Счёт выставлен", default=False)
     symptom = models.TextField("Симптом (со слов клиента)")
     error_code = models.CharField("Код ошибки", max_length=50, blank=True, db_index=True)
     diagnosis = models.TextField("Диагноз", blank=True)
