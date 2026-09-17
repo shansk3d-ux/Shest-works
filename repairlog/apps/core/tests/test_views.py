@@ -45,3 +45,15 @@ class LoginViewTests(TestCase):
         self.client.force_login(self.user)
         response = self.client.post(reverse("logout"))
         self.assertRedirects(response, reverse("login"))
+
+
+class ClipboardHelperTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="master", password="pass12345")
+
+    def test_copy_helper_loads_before_the_scripts_that_call_it(self):
+        self.client.force_login(self.user)
+        html = self.client.get(reverse("home")).content.decode()
+        self.assertIn("js/clipboard.js", html)
+        self.assertLess(html.index("js/clipboard.js"), html.index("js/phone-actions.js"))
+        self.assertLess(html.index("js/clipboard.js"), html.index("js/nalog-actions.js"))

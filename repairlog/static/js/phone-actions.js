@@ -12,16 +12,13 @@
         var maxBtn = event.target.closest(".write-max-btn");
         if (maxBtn) {
             var phone = maxBtn.dataset.phone;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(phone).catch(function () {
-                    // Clipboard access can be blocked; the alert below still
-                    // shows the number, so nothing further to do.
-                });
-            }
+            var copied = window.copyToClipboard(phone);
             // MAX has no public "open chat by phone number" link (unlike
             // wa.me) — copy the number and send the user to search for it.
             alert(
-                "Номер " + phone + " скопирован в буфер обмена.\n" +
+                (copied
+                    ? "Номер " + phone + " скопирован в буфер обмена.\n"
+                    : "Не удалось скопировать номер автоматически.\nНомер: " + phone + "\n") +
                 "Вставьте его в поиск контактов в MAX — прямых ссылок по номеру телефона MAX не даёт."
             );
             window.open("https://max.ru/", "_blank", "noopener");

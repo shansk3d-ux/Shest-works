@@ -17,16 +17,20 @@
         }
 
         var inn = btn.dataset.inn;
-        if (inn && navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(inn).catch(function () {
-                // Clipboard access can be blocked; the alert below still
-                // shows the number, so there is nothing further to do.
-            });
-            alert("ИНН " + inn + " скопирован в буфер обмена.");
+        if (inn) {
+            if (window.copyToClipboard(inn)) {
+                alert("ИНН " + inn + " скопирован в буфер обмена.");
+            } else {
+                alert("Не удалось скопировать ИНН автоматически.\nИНН: " + inn);
+            }
         }
 
         if (/Android/i.test(navigator.userAgent)) {
-            window.location.href = ANDROID_URL;
+            // Leaving for the app in the same turn as the copy discards what
+            // was just put on the clipboard, so let that settle first.
+            setTimeout(function () {
+                window.location.href = ANDROID_URL;
+            }, 150);
         } else {
             window.open(WEB_URL, "_blank", "noopener");
         }
