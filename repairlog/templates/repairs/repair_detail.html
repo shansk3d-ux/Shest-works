@@ -3,18 +3,18 @@
 {% block title %}Заявка №{{ repair.pk }} — Опять работа?{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-3">
+<div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-start gap-2 mb-3">
     <div>
         <h1 class="h3 mb-1">Заявка №{{ repair.pk }}</h1>
         {% include "repairs/_status_badge.html" %}
         {% if repair.is_archived %}<span class="badge text-bg-secondary">В архиве</span>{% endif %}
     </div>
-    <div class="btn-group">
+    <div class="d-grid gap-2 d-sm-flex">
         <a href="{% url 'repairs:update' repair.pk %}" class="btn btn-outline-secondary">Изменить</a>
         {% if repair.is_archived %}
-        <form method="post" action="{% url 'repairs:restore' repair.pk %}" class="d-inline">
+        <form method="post" action="{% url 'repairs:restore' repair.pk %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-success">Вернуть из архива</button>
+            <button type="submit" class="btn btn-outline-success w-100">Вернуть из архива</button>
         </form>
         {% else %}
         <a href="{% url 'repairs:archive' repair.pk %}" class="btn btn-outline-danger">В архив</a>

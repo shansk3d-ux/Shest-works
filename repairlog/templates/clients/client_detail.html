@@ -4,7 +4,7 @@
 {% block title %}{{ client.name }} — Опять работа?{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-start mb-3">
+<div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-start gap-2 mb-3">
     <div class="d-flex align-items-center gap-3">
         <img
             src="{% static client|client_icon %}"
@@ -17,7 +17,7 @@
             <span class="badge text-bg-secondary">{{ client.get_client_type_display }}</span>
         </div>
     </div>
-    <div class="btn-group">
+    <div class="d-grid gap-2 d-sm-flex">
         <a href="{% url 'repairs:wizard_equipment' client.pk %}" class="btn btn-primary">Создать заявку</a>
         <a href="{% url 'clients:update' client.pk %}" class="btn btn-outline-secondary">Изменить</a>
         <a href="{% url 'clients:delete' client.pk %}" class="btn btn-outline-danger">Удалить</a>
