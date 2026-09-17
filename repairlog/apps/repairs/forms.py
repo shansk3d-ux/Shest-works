@@ -33,9 +33,9 @@ class MultipleFileInput(forms.ClearableFileInput):
 
 class MultipleFileField(forms.FileField):
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault(
-            "widget", MultipleFileInput(attrs={"accept": "image/*", "capture": "environment"})
-        )
+        # No "capture" attribute: that forces mobile browsers straight into the
+        # camera, skipping the OS picker that also offers gallery/files.
+        kwargs.setdefault("widget", MultipleFileInput(attrs={"accept": "image/*"}))
         super().__init__(*args, **kwargs)
 
     def clean(self, data, initial=None):
