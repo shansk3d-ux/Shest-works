@@ -14,6 +14,7 @@ class EquipmentTypeAdmin(admin.ModelAdmin):
 class BrandAdmin(admin.ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
+    filter_horizontal = ("typical_equipment_types",)
 
 
 @admin.register(Equipment)

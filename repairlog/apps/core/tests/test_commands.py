@@ -27,6 +27,27 @@ class SeedCommandTests(TestCase):
         self.assertEqual(EquipmentType.objects.count(), types_after_first_run)
         self.assertEqual(Brand.objects.count(), brands_after_first_run)
 
+    def test_seed_links_brands_to_typical_equipment_types(self):
+        call_command("seed")
+        rational = Brand.objects.get(name="Rational")
+        self.assertTrue(
+            rational.typical_equipment_types.filter(name="Пароконвектомат").exists()
+        )
+        polair = Brand.objects.get(name="Polair")
+        self.assertTrue(
+            polair.typical_equipment_types.filter(name="Холодильный шкаф").exists()
+        )
+
+    def test_seed_typical_equipment_links_are_idempotent(self):
+        call_command("seed")
+        rational = Brand.objects.get(name="Rational")
+        count_after_first_run = rational.typical_equipment_types.count()
+
+        call_command("seed")
+
+        rational.refresh_from_db()
+        self.assertEqual(rational.typical_equipment_types.count(), count_after_first_run)
+
     def test_seed_covers_all_categories(self):
         call_command("seed")
         categories = set(EquipmentType.objects.values_list("category", flat=True))

@@ -56,8 +56,12 @@ class EquipmentListView(LoginRequiredMixin, QuerystringMixin, generic.ListView):
 
 class EquipmentTypeSuggestionsView(LoginRequiredMixin, generic.TemplateView):
     """HTMX fragment: re-renders the equipment_type <select>'s options, grouping the
-    types already seen with the chosen brand ahead of the rest — triggered whenever
-    the brand field changes on the equipment form."""
+    types characteristic of the chosen brand ahead of the rest — triggered whenever
+    the brand field changes on the equipment form. "Characteristic" combines the
+    brand's real-world product lineup (Brand.typical_equipment_types, from the
+    seed command) with whatever types this brand has actually been logged with
+    here, so suggestions are useful from the first use, not just after enough
+    equipment has piled up."""
 
     template_name = "equipment/_equipment_type_options.html"
 
@@ -66,9 +70,14 @@ class EquipmentTypeSuggestionsView(LoginRequiredMixin, generic.TemplateView):
         brand_name = self.request.GET.get("brand", "").strip()
         selected_type = self.request.GET.get("equipment_type", "").strip()
 
-        characteristic_ids = []
+        characteristic_ids = set()
         if brand_name and brand_name != NEW_OPTION_VALUE:
-            characteristic_ids = list(
+            brand = Brand.objects.filter(name=brand_name).first()
+            if brand:
+                characteristic_ids.update(
+                    brand.typical_equipment_types.values_list("id", flat=True)
+                )
+            characteristic_ids.update(
                 EquipmentType.objects.filter(equipment__brand__name=brand_name)
                 .distinct()
                 .values_list("id", flat=True)

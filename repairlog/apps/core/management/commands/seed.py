@@ -45,6 +45,74 @@ BRANDS = [
     "Polair",
 ]
 
+# What each brand actually makes, so equipment-form suggestions are useful from
+# the first use — not just after enough equipment has been logged by hand.
+# Household appliance makers (Electrolux, Bosch, Samsung, LG, Zanussi,
+# Whirlpool, Indesit, Gorenje) all sell essentially the same lineup, so
+# they share one list; the rest are commercial/HoReCa specialists with a
+# narrower real-world range.
+_HOUSEHOLD_LINEUP = [
+    "Стиральная машина",
+    "Холодильник",
+    "Посудомоечная машина (бытовая)",
+    "Микроволновая печь",
+    "Духовой шкаф",
+    "Сушильная машина",
+]
+
+BRAND_TYPICAL_EQUIPMENT = {
+    # Combi-steamer specialists.
+    "Rational": ["Пароконвектомат"],
+    "Unox": ["Пароконвектомат"],
+    "Convotherm": ["Пароконвектомат"],
+    # Warewashing specialists.
+    "Winterhalter": ["Посудомоечная машина (кухонная)"],
+    "Hobart": ["Посудомоечная машина (кухонная)", "Тестомес"],
+    # Household appliance makers.
+    "Electrolux": _HOUSEHOLD_LINEUP,
+    "Bosch": _HOUSEHOLD_LINEUP,
+    "Samsung": ["Стиральная машина", "Холодильник", "Микроволновая печь", "Сушильная машина"],
+    "LG": ["Стиральная машина", "Холодильник", "Микроволновая печь", "Сушильная машина"],
+    "Zanussi": [
+        "Стиральная машина",
+        "Холодильник",
+        "Посудомоечная машина (бытовая)",
+        "Духовой шкаф",
+    ],
+    "Whirlpool": _HOUSEHOLD_LINEUP,
+    "Indesit": [
+        "Стиральная машина",
+        "Холодильник",
+        "Посудомоечная машина (бытовая)",
+        "Духовой шкаф",
+    ],
+    "Gorenje": [
+        "Стиральная машина",
+        "Холодильник",
+        "Посудомоечная машина (бытовая)",
+        "Духовой шкаф",
+        "Микроволновая печь",
+    ],
+    # Abat (Чувашторгтехника): broad Russian HoReCa equipment maker —
+    # combi ovens, ranges, dough mixers, commercial fridges and dishwashers.
+    "Abat": [
+        "Пароконвектомат",
+        "Плита индукционная",
+        "Холодильный шкаф",
+        "Посудомоечная машина (кухонная)",
+        "Тестомес",
+        "Промышленный холодильник",
+    ],
+    # Polair: Russian commercial refrigeration specialist.
+    "Polair": [
+        "Холодильный шкаф",
+        "Морозильный ларь",
+        "Витрина холодильная",
+        "Промышленный холодильник",
+        "Компрессор холодильный",
+    ],
+}
+
 
 class Command(BaseCommand):
     help = "Заполняет справочники типов оборудования и брендов начальными данными"
@@ -60,8 +128,14 @@ class Command(BaseCommand):
 
         created_brands = 0
         for name in BRANDS:
-            _, created = Brand.objects.get_or_create(name=name)
+            brand, created = Brand.objects.get_or_create(name=name)
             created_brands += int(created)
+
+            typical_names = BRAND_TYPICAL_EQUIPMENT.get(name, [])
+            if typical_names:
+                brand.typical_equipment_types.set(
+                    EquipmentType.objects.filter(name__in=typical_names)
+                )
 
         self.stdout.write(
             self.style.SUCCESS(

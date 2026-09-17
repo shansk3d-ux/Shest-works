@@ -25,6 +25,12 @@ class EquipmentType(TimeStampedModel):
 
 class Brand(TimeStampedModel):
     name = models.CharField("Название", max_length=255, unique=True)
+    typical_equipment_types = models.ManyToManyField(
+        EquipmentType,
+        verbose_name="Характерные типы оборудования",
+        related_name="typical_brands",
+        blank=True,
+    )
 
     class Meta:
         verbose_name = "Бренд"

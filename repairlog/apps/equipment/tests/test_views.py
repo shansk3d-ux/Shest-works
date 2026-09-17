@@ -230,6 +230,22 @@ class EquipmentTypeSuggestionsViewTests(EquipmentViewsTestCase):
             content.index(self.equipment_type.name), content.index(other_type.name)
         )
 
+    def test_suggests_seeded_typical_types_even_without_equipment_history(self):
+        # A fresh brand with no Equipment rows yet, but with a pre-seeded
+        # typical_equipment_types link — suggestions should still work.
+        fresh_brand = Brand.objects.create(name="Convotherm")
+        combi = EquipmentType.objects.create(
+            name="Пароконвектомат-новый", category=EquipmentType.Category.KITCHEN
+        )
+        fresh_brand.typical_equipment_types.add(combi)
+
+        response = self.client.get(
+            reverse("equipment:type_suggestions"), {"brand": fresh_brand.name}
+        )
+        content = response.content.decode()
+        self.assertIn("Характерно для Convotherm", content)
+        self.assertIn(combi.name, content)
+
     def test_unknown_brand_returns_flat_list_without_grouping(self):
         response = self.client.get(
             reverse("equipment:type_suggestions"), {"brand": "Совсем новый бренд"}
