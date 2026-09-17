@@ -100,14 +100,16 @@ class EquipmentCreateViewTests(EquipmentViewsTestCase):
         response = self.client.get(reverse("equipment:create"), {"client": self.client_obj.pk})
         self.assertEqual(response.context["form"].initial["client"], str(self.client_obj.pk))
 
-    def test_typing_a_new_type_and_brand_name_creates_and_keeps_them(self):
+    def test_picking_new_option_and_typing_a_name_creates_and_keeps_it(self):
         response = self.client.post(
             reverse("equipment:create"),
             {
                 "client": self.client_obj.pk,
-                "equipment_type": "Слайсер",
+                "equipment_type": "__new__",
+                "equipment_type_new_name": "Слайсер",
                 "equipment_type_category": EquipmentType.Category.KITCHEN,
-                "brand": "Berkel",
+                "brand": "__new__",
+                "brand_new_name": "Berkel",
                 "model": "330M",
             },
         )
@@ -120,7 +122,7 @@ class EquipmentCreateViewTests(EquipmentViewsTestCase):
         self.assertTrue(EquipmentType.objects.filter(name="Слайсер").exists())
         self.assertTrue(Brand.objects.filter(name="Berkel").exists())
 
-    def test_typing_an_existing_name_case_insensitively_reuses_it(self):
+    def test_new_brand_name_reuses_an_existing_one_case_insensitively(self):
         # Latin names here: SQLite's UPPER()/LOWER() (unlike Postgres's) only
         # case-folds ASCII, so a Cyrillic case-insensitive match would only
         # work against the real Postgres used in production.
@@ -129,7 +131,8 @@ class EquipmentCreateViewTests(EquipmentViewsTestCase):
             {
                 "client": self.client_obj.pk,
                 "equipment_type": self.equipment_type.name,
-                "brand": self.brand.name.upper(),
+                "brand": "__new__",
+                "brand_new_name": self.brand.name.upper(),
                 "model": "SCC 102",
             },
         )
@@ -145,7 +148,8 @@ class EquipmentCreateViewTests(EquipmentViewsTestCase):
             reverse("equipment:create"),
             {
                 "client": self.client_obj.pk,
-                "equipment_type": "Слайсер",
+                "equipment_type": "__new__",
+                "equipment_type_new_name": "Слайсер",
                 "brand": self.brand.name,
                 "model": "330M",
             },
@@ -153,6 +157,26 @@ class EquipmentCreateViewTests(EquipmentViewsTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Equipment.objects.filter(model="330M").exists())
         self.assertFalse(EquipmentType.objects.filter(name="Слайсер").exists())
+
+    def test_new_type_without_name_is_rejected(self):
+        response = self.client.post(
+            reverse("equipment:create"),
+            {
+                "client": self.client_obj.pk,
+                "equipment_type": "__new__",
+                "equipment_type_category": EquipmentType.Category.KITCHEN,
+                "brand": self.brand.name,
+                "model": "330M",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Equipment.objects.filter(model="330M").exists())
+
+    def test_form_uses_native_select_not_datalist(self):
+        response = self.client.get(reverse("equipment:create"))
+        self.assertNotContains(response, "<datalist")
+        self.assertContains(response, "+ Новый тип оборудования")
+        self.assertContains(response, "+ Новый бренд")
 
 
 class EquipmentArchiveViewTests(EquipmentViewsTestCase):

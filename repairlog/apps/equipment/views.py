@@ -65,19 +65,7 @@ class EquipmentDetailView(LoginRequiredMixin, generic.DetailView):
         return context
 
 
-class EquipmentTypeBrandOptionsMixin:
-    """Feeds the create/update form's autocomplete <datalist>s with the current catalog."""
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["equipment_types"] = EquipmentType.objects.all()
-        context["brands"] = Brand.objects.all()
-        return context
-
-
-class EquipmentCreateView(
-    LoginRequiredMixin, NextUrlRedirectMixin, EquipmentTypeBrandOptionsMixin, generic.CreateView
-):
+class EquipmentCreateView(LoginRequiredMixin, NextUrlRedirectMixin, generic.CreateView):
     model = Equipment
     form_class = EquipmentForm
     template_name = "equipment/equipment_form.html"
@@ -94,7 +82,7 @@ class EquipmentCreateView(
         return reverse_lazy("equipment:detail", args=[self.object.pk])
 
 
-class EquipmentUpdateView(LoginRequiredMixin, EquipmentTypeBrandOptionsMixin, generic.UpdateView):
+class EquipmentUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Equipment
     form_class = EquipmentForm
     template_name = "equipment/equipment_form.html"

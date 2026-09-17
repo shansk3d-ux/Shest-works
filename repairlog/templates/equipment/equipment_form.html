@@ -10,13 +10,45 @@
     {% if request.GET.next %}
     <input type="hidden" name="next" value="{{ request.GET.next }}">
     {% endif %}
-    {% include "core/_form_fields.html" %}
-    <datalist id="equipment-type-options">
-        {% for type in equipment_types %}<option value="{{ type.name }}">{% endfor %}
-    </datalist>
-    <datalist id="brand-options">
-        {% for brand in brands %}<option value="{{ brand.name }}">{% endfor %}
-    </datalist>
+
+    {% include "core/_single_form_field.html" with field=form.client %}
+
+    {% include "core/_single_form_field.html" with field=form.equipment_type %}
+    <div id="equipment-type-new-fields" class="{% if form.equipment_type.value != "__new__" %}d-none{% endif %}">
+        {% include "core/_single_form_field.html" with field=form.equipment_type_new_name %}
+        {% include "core/_single_form_field.html" with field=form.equipment_type_category %}
+    </div>
+
+    {% include "core/_single_form_field.html" with field=form.brand %}
+    <div id="brand-new-fields" class="{% if form.brand.value != "__new__" %}d-none{% endif %}">
+        {% include "core/_single_form_field.html" with field=form.brand_new_name %}
+    </div>
+
+    {% include "core/_single_form_field.html" with field=form.model %}
+    {% include "core/_single_form_field.html" with field=form.serial_number %}
+    {% include "core/_single_form_field.html" with field=form.year %}
+    {% include "core/_single_form_field.html" with field=form.location %}
+    {% include "core/_single_form_field.html" with field=form.notes %}
+
     <button type="submit" class="btn btn-primary btn-lg w-100">Сохранить</button>
 </form>
+
+<script>
+(function () {
+    function bindNewOptionToggle(selectId, wrapperId) {
+        var select = document.getElementById(selectId);
+        var wrapper = document.getElementById(wrapperId);
+        if (!select || !wrapper) {
+            return;
+        }
+        function sync() {
+            wrapper.classList.toggle("d-none", select.value !== "__new__");
+        }
+        select.addEventListener("change", sync);
+        sync();
+    }
+    bindNewOptionToggle("id_equipment_type", "equipment-type-new-fields");
+    bindNewOptionToggle("id_brand", "brand-new-fields");
+})();
+</script>
 {% endblock %}
