@@ -237,6 +237,38 @@ class RepairDetailViewTests(RepairViewsTestCase):
         response = self.client.get(reverse("repairs:detail", args=[repair.pk]))
         self.assertContains(response, "Не набирает температуру")
 
+    def test_offers_call_and_max_buttons_for_client_with_phone(self):
+        repair = Repair.objects.create(
+            equipment=self.equipment,
+            master=self.user,
+            reported_at=timezone.localdate(),
+            symptom="Не набирает температуру",
+        )
+        response = self.client.get(reverse("repairs:detail", args=[repair.pk]))
+        self.assertContains(response, 'href="tel:+79990001122"')
+        self.assertContains(response, "write-max-btn")
+
+    def test_offers_no_phone_redirect_for_client_without_phone(self):
+        client_without_phone = Client.objects.create(name="Кафе Без Номера")
+        equipment = Equipment.objects.create(
+            client=client_without_phone,
+            equipment_type=self.equipment_type,
+            brand=self.brand,
+            model="Other",
+        )
+        repair = Repair.objects.create(
+            equipment=equipment,
+            master=self.user,
+            reported_at=timezone.localdate(),
+            symptom="Не набирает температуру",
+        )
+        response = self.client.get(reverse("repairs:detail", args=[repair.pk]))
+        self.assertContains(response, "no-phone-btn")
+        self.assertContains(
+            response,
+            f'data-edit-url="{reverse("clients:update", args=[client_without_phone.pk])}"',
+        )
+
 
 class RepairUpdateViewTests(RepairViewsTestCase):
     def test_updates_repair(self):

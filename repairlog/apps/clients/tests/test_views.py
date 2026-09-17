@@ -41,6 +41,23 @@ class ClientDetailViewTests(ClientViewsTestCase):
         self.assertContains(response, "Ресторан Восток")
         self.assertContains(response, "+79990001122")
 
+    def test_offers_call_and_max_buttons_when_phone_is_set(self):
+        response = self.client.get(reverse("clients:detail", args=[self.client_obj.pk]))
+        self.assertContains(response, 'href="tel:+79990001122"')
+        self.assertContains(response, "write-max-btn")
+        self.assertContains(response, 'data-phone="+79990001122"')
+        self.assertNotContains(response, "no-phone-btn")
+
+    def test_offers_no_phone_redirect_when_phone_is_missing(self):
+        client_without_phone = Client.objects.create(name="Кафе Без Номера")
+        response = self.client.get(reverse("clients:detail", args=[client_without_phone.pk]))
+        self.assertContains(response, "no-phone-btn")
+        self.assertContains(
+            response,
+            f'data-edit-url="{reverse("clients:update", args=[client_without_phone.pk])}"',
+        )
+        self.assertNotContains(response, "write-max-btn")
+
 
 class ClientCreateViewTests(ClientViewsTestCase):
     def test_creates_client_and_redirects_to_detail(self):

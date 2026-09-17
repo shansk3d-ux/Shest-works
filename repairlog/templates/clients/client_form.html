@@ -56,4 +56,17 @@
 })();
 </script>
 {% endif %}
+
+<script>
+(function () {
+    if (window.location.hash !== "#id_phone") {
+        return;
+    }
+    var phoneInput = document.getElementById("id_phone");
+    if (phoneInput) {
+        phoneInput.focus();
+        phoneInput.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+})();
+</script>
 {% endblock %}

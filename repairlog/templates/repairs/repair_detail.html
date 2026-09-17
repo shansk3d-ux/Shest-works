@@ -31,6 +31,10 @@
     <dd class="col-sm-9">
         <a href="{% url 'clients:detail' repair.equipment.client.pk %}">{{ repair.equipment.client.name }}</a>
     </dd>
+    <dt class="col-sm-3">Телефон клиента</dt>
+    <dd class="col-sm-9">
+        {% if repair.equipment.client.phone %}{{ repair.equipment.client.phone }}{% else %}<span class="text-muted">не указан</span>{% endif %}
+    </dd>
     <dt class="col-sm-3">Мастер</dt>
     <dd class="col-sm-9">{{ repair.master.get_username }}</dd>
     <dt class="col-sm-3">Дата обращения</dt>
@@ -66,6 +70,8 @@
     <dd class="col-sm-9">{{ repair.warranty_until }}</dd>
     {% endif %}
 </dl>
+
+{% include "clients/_phone_actions.html" with client=repair.equipment.client %}
 
 <h2 class="h5 mt-4 mb-2">Изменить статус</h2>
 <form method="post" action="{% url 'repairs:status' repair.pk %}" class="row g-2 align-items-end mb-4">

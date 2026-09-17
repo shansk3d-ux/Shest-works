@@ -1,0 +1,23 @@
+{% if client.phone %}
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a href="tel:{{ client.phone }}" class="btn btn-outline-primary">Позвонить</a>
+    <button type="button" class="btn btn-outline-primary write-max-btn" data-phone="{{ client.phone }}">
+        Написать в MAX
+    </button>
+</div>
+{% else %}
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <button
+        type="button"
+        class="btn btn-outline-secondary no-phone-btn"
+        data-edit-url="{% url 'clients:update' client.pk %}">
+        Позвонить
+    </button>
+    <button
+        type="button"
+        class="btn btn-outline-secondary no-phone-btn"
+        data-edit-url="{% url 'clients:update' client.pk %}">
+        Написать в MAX
+    </button>
+</div>
+{% endif %}

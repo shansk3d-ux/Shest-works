@@ -25,10 +25,10 @@
 </div>
 
 <dl class="row">
-    {% if client.phone %}
     <dt class="col-sm-3">Телефон</dt>
-    <dd class="col-sm-9">{{ client.phone }}</dd>
-    {% endif %}
+    <dd class="col-sm-9">
+        {% if client.phone %}{{ client.phone }}{% else %}<span class="text-muted">не указан</span>{% endif %}
+    </dd>
     {% if client.email %}
     <dt class="col-sm-3">E-mail</dt>
     <dd class="col-sm-9">{{ client.email }}</dd>
@@ -42,6 +42,8 @@
     <dd class="col-sm-9">{{ client.notes|linebreaksbr }}</dd>
     {% endif %}
 </dl>
+
+{% include "clients/_phone_actions.html" %}
 
 <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
     <h2 class="h5 mb-0">Оборудование</h2>
