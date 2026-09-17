@@ -51,6 +51,11 @@ class ClientCreateViewTests(ClientViewsTestCase):
         client = Client.objects.get(name="Новый клиент")
         self.assertRedirects(response, reverse("clients:detail", args=[client.pk]))
 
+    def test_offers_contact_import_button(self):
+        response = self.client.get(reverse("clients:create"))
+        self.assertContains(response, "import-contact-btn")
+        self.assertContains(response, "navigator.contacts")
+
 
 class ClientUpdateViewTests(ClientViewsTestCase):
     def test_updates_client(self):
@@ -61,6 +66,10 @@ class ClientUpdateViewTests(ClientViewsTestCase):
         self.assertRedirects(response, reverse("clients:detail", args=[self.client_obj.pk]))
         self.client_obj.refresh_from_db()
         self.assertEqual(self.client_obj.name, "Ресторан Запад")
+
+    def test_does_not_offer_contact_import_button(self):
+        response = self.client.get(reverse("clients:update", args=[self.client_obj.pk]))
+        self.assertNotContains(response, "import-contact-btn")
 
 
 class ClientDeleteViewTests(ClientViewsTestCase):

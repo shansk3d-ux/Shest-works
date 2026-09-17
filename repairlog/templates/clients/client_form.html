@@ -5,9 +5,55 @@
 {% block content %}
 <h1 class="h3 mb-3">{% if object %}Изменить клиента{% else %}Новый клиент{% endif %}</h1>
 
+{% if not object %}
+<button type="button" id="import-contact-btn" class="btn btn-outline-primary mb-3 d-none">
+    Импортировать из контактов телефона
+</button>
+{% endif %}
+
 <form method="post" novalidate>
     {% csrf_token %}
     {% include "core/_form_fields.html" %}
     <button type="submit" class="btn btn-primary btn-lg w-100">Сохранить</button>
 </form>
+
+{% if not object %}
+<script>
+(function () {
+    var btn = document.getElementById("import-contact-btn");
+    if (!btn) {
+        return;
+    }
+    if (!("contacts" in navigator && "ContactsManager" in window)) {
+        // Contact Picker API: Chrome/Android only, and only over HTTPS.
+        // Nothing to do elsewhere — leave the button hidden.
+        return;
+    }
+    btn.classList.remove("d-none");
+
+    btn.addEventListener("click", function () {
+        navigator.contacts
+            .select(["name", "tel", "email"], { multiple: false })
+            .then(function (contacts) {
+                if (!contacts.length) {
+                    return;
+                }
+                var contact = contacts[0];
+                if (contact.name && contact.name.length) {
+                    document.getElementById("id_name").value = contact.name[0];
+                }
+                if (contact.tel && contact.tel.length) {
+                    document.getElementById("id_phone").value = contact.tel[0];
+                }
+                if (contact.email && contact.email.length) {
+                    document.getElementById("id_email").value = contact.email[0];
+                }
+            })
+            .catch(function () {
+                // User cancelled the picker or denied permission — nothing to do.
+            });
+    });
+})();
+</script>
+{% endif %}
 {% endblock %}
