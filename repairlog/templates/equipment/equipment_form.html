@@ -34,21 +34,7 @@
 </form>
 
 <script>
-(function () {
-    function bindNewOptionToggle(selectId, wrapperId) {
-        var select = document.getElementById(selectId);
-        var wrapper = document.getElementById(wrapperId);
-        if (!select || !wrapper) {
-            return;
-        }
-        function sync() {
-            wrapper.classList.toggle("d-none", select.value !== "__new__");
-        }
-        select.addEventListener("change", sync);
-        sync();
-    }
-    bindNewOptionToggle("id_equipment_type", "equipment-type-new-fields");
-    bindNewOptionToggle("id_brand", "brand-new-fields");
-})();
+bindNewOptionToggle("id_equipment_type", "equipment-type-new-fields");
+bindNewOptionToggle("id_brand", "brand-new-fields");
 </script>
 {% endblock %}

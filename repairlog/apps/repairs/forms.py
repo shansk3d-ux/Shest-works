@@ -107,5 +107,45 @@ class RepairPhotoUploadForm(BootstrapFormMixin, forms.Form):
 
 
 class RepairPartAddForm(BootstrapFormMixin, forms.Form):
-    part = forms.ModelChoiceField(label="Запчасть", queryset=Part.objects.select_related("brand"))
+    part = forms.ChoiceField(label="Запчасть/услуга")
+    part_new_name = forms.CharField(label="Название новой позиции", required=False)
+    part_new_kind = forms.ChoiceField(
+        label="Тип", choices=Part.Kind.choices, required=False, initial=Part.Kind.PART
+    )
+    part_new_price = forms.DecimalField(
+        label="Цена", max_digits=10, decimal_places=2, required=False, min_value=0
+    )
     quantity = forms.IntegerField(label="Количество", min_value=1, initial=1)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        choices = [(part.name, part.name) for part in Part.objects.order_by("name")]
+        choices.append(("__new__", "+ Новая запчасть/услуга…"))
+        self.fields["part"].choices = choices
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        part_value = cleaned_data.get("part")
+        resolved_part = None
+        if part_value == "__new__":
+            new_name = (cleaned_data.get("part_new_name") or "").strip()
+            price = cleaned_data.get("part_new_price")
+            if not new_name:
+                self.add_error("part_new_name", "Введите название.")
+            elif price is None:
+                self.add_error("part_new_price", "Укажите цену.")
+            else:
+                kind = cleaned_data.get("part_new_kind") or Part.Kind.PART
+                resolved_part = Part.objects.filter(name__iexact=new_name).first()
+                if not resolved_part:
+                    resolved_part = Part.objects.create(name=new_name, kind=kind, price=price)
+        elif part_value:
+            resolved_part = Part.objects.filter(name=part_value).first()
+        cleaned_data["part"] = resolved_part
+
+        new_part_errors = self.errors.get("part_new_name") or self.errors.get("part_new_price")
+        if resolved_part is None and not new_part_errors:
+            self.add_error("part", "Выберите запчасть/услугу.")
+
+        return cleaned_data

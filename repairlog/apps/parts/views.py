@@ -22,11 +22,18 @@ class PartListView(LoginRequiredMixin, QuerystringMixin, generic.ListView):
         query = self.request.GET.get("q", "").strip()
         if query:
             queryset = queryset.filter(Q(name__icontains=query) | Q(article__icontains=query))
+
+        kind = self.request.GET.get("kind")
+        if kind in Part.Kind.values:
+            queryset = queryset.filter(kind=kind)
+
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["query"] = self.request.GET.get("q", "")
+        context["selected_kind"] = self.request.GET.get("kind", "")
+        context["kinds"] = Part.Kind.choices
         return context
 
 

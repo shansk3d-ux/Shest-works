@@ -5,7 +5,12 @@ from apps.equipment.models import Brand
 
 
 class Part(TimeStampedModel):
+    class Kind(models.TextChoices):
+        PART = "part", "Запчасть"
+        SERVICE = "service", "Услуга"
+
     name = models.CharField("Название", max_length=255)
+    kind = models.CharField("Тип", max_length=10, choices=Kind.choices, default=Kind.PART)
     article = models.CharField("Артикул", max_length=100, blank=True)
     brand = models.ForeignKey(
         Brand,
@@ -19,8 +24,8 @@ class Part(TimeStampedModel):
     notes = models.TextField("Заметки", blank=True)
 
     class Meta:
-        verbose_name = "Запчасть"
-        verbose_name_plural = "Запчасти"
+        verbose_name = "Запчасть или услуга"
+        verbose_name_plural = "Запчасти и услуги"
         ordering = ["name"]
 
     def __str__(self):

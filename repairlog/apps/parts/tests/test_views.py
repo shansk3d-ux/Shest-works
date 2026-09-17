@@ -39,6 +39,14 @@ class PartListViewTests(PartViewsTestCase):
         self.assertContains(response, "Тэн 2000W")
         self.assertNotContains(response, "Фильтр")
 
+    def test_filter_by_kind(self):
+        Part.objects.create(
+            name="Диагностика", kind=Part.Kind.SERVICE, price=Decimal("500.00")
+        )
+        response = self.client.get(reverse("parts:list"), {"kind": Part.Kind.SERVICE})
+        self.assertContains(response, "Диагностика")
+        self.assertNotContains(response, "Тэн 2000W")
+
 
 class PartDetailViewTests(PartViewsTestCase):
     def test_shows_part_info(self):
@@ -71,10 +79,32 @@ class PartCreateViewTests(PartViewsTestCase):
     def test_creates_part_and_redirects_to_detail(self):
         response = self.client.post(
             reverse("parts:create"),
-            {"name": "Насос", "article": "", "price": "2500.00", "notes": ""},
+            {
+                "name": "Насос",
+                "kind": Part.Kind.PART,
+                "article": "",
+                "price": "2500.00",
+                "notes": "",
+            },
         )
         part = Part.objects.get(name="Насос")
         self.assertRedirects(response, reverse("parts:detail", args=[part.pk]))
+        self.assertEqual(part.kind, Part.Kind.PART)
+
+    def test_creates_a_service(self):
+        response = self.client.post(
+            reverse("parts:create"),
+            {
+                "name": "Диагностика",
+                "kind": Part.Kind.SERVICE,
+                "article": "",
+                "price": "500.00",
+                "notes": "",
+            },
+        )
+        part = Part.objects.get(name="Диагностика")
+        self.assertRedirects(response, reverse("parts:detail", args=[part.pk]))
+        self.assertEqual(part.kind, Part.Kind.SERVICE)
 
 
 class PartDeleteViewTests(PartViewsTestCase):

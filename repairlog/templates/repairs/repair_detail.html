@@ -168,5 +168,20 @@
     <div class="col-4 col-sm-2">
         <button type="submit" class="btn btn-outline-primary w-100">Добавить</button>
     </div>
+    <div id="repair-part-new-fields" class="col-12 row g-2 {% if part_form.part.value != "__new__" %}d-none{% endif %}">
+        <div class="col-12 col-sm-5">
+            {% include "core/_single_form_field.html" with field=part_form.part_new_name %}
+        </div>
+        <div class="col-6 col-sm-3">
+            {% include "core/_single_form_field.html" with field=part_form.part_new_kind %}
+        </div>
+        <div class="col-6 col-sm-4">
+            {% include "core/_single_form_field.html" with field=part_form.part_new_price %}
+        </div>
+    </div>
 </form>
+
+<script>
+bindNewOptionToggle("id_part", "repair-part-new-fields");
+</script>
 {% endblock %}

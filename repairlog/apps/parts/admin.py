@@ -5,7 +5,7 @@ from .models import Part
 
 @admin.register(Part)
 class PartAdmin(admin.ModelAdmin):
-    list_display = ("name", "article", "brand", "price")
-    list_filter = ("brand",)
+    list_display = ("name", "kind", "article", "brand", "price")
+    list_filter = ("kind", "brand")
     search_fields = ("name", "article")
     autocomplete_fields = ("brand",)
