@@ -7,7 +7,7 @@ from django.views import generic
 
 from apps.core.views import NextUrlRedirectMixin, QuerystringMixin
 
-from .forms import EquipmentForm
+from .forms import NEW_OPTION_VALUE, EquipmentForm
 from .models import Brand, Equipment, EquipmentType
 
 
@@ -51,6 +51,52 @@ class EquipmentListView(LoginRequiredMixin, QuerystringMixin, generic.ListView):
         context["brands"] = Brand.objects.all()
         context["selected_equipment_type"] = self.request.GET.get("equipment_type", "")
         context["selected_brand"] = self.request.GET.get("brand", "")
+        return context
+
+
+class EquipmentTypeSuggestionsView(LoginRequiredMixin, generic.TemplateView):
+    """HTMX fragment: re-renders the equipment_type <select>'s options, grouping the
+    types already seen with the chosen brand ahead of the rest — triggered whenever
+    the brand field changes on the equipment form."""
+
+    template_name = "equipment/_equipment_type_options.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        brand_name = self.request.GET.get("brand", "").strip()
+        selected_type = self.request.GET.get("equipment_type", "").strip()
+
+        characteristic_ids = []
+        if brand_name and brand_name != NEW_OPTION_VALUE:
+            characteristic_ids = list(
+                EquipmentType.objects.filter(equipment__brand__name=brand_name)
+                .distinct()
+                .values_list("id", flat=True)
+            )
+
+        characteristic_types = EquipmentType.objects.filter(
+            id__in=characteristic_ids
+        ).order_by("name")
+        characteristic_names = [t.name for t in characteristic_types]
+
+        # The previous selection may no longer be relevant to the newly picked
+        # brand (e.g. switching from one brand to another) — jump to the top
+        # suggestion instead of leaving an unrelated type selected. A value
+        # that's already in the suggested set (as it always is when this fires
+        # on loading the edit form for existing equipment) is left untouched.
+        if (
+            characteristic_names
+            and selected_type != NEW_OPTION_VALUE
+            and selected_type not in characteristic_names
+        ):
+            selected_type = characteristic_names[0]
+
+        context["brand_name"] = brand_name
+        context["characteristic_types"] = characteristic_types
+        context["other_types"] = EquipmentType.objects.exclude(
+            id__in=characteristic_ids
+        ).order_by("name")
+        context["selected_type"] = selected_type
         return context
 
 

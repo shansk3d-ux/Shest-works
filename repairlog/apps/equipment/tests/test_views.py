@@ -199,3 +199,72 @@ class EquipmentArchiveViewTests(EquipmentViewsTestCase):
         self.assertRedirects(response, reverse("equipment:detail", args=[self.equipment.pk]))
         self.equipment.refresh_from_db()
         self.assertFalse(self.equipment.is_archived)
+
+
+class EquipmentFormFieldOrderTests(EquipmentViewsTestCase):
+    def test_brand_field_comes_before_equipment_type_field(self):
+        response = self.client.get(reverse("equipment:create"))
+        content = response.content.decode()
+        self.assertLess(content.index("id_brand"), content.index("id_equipment_type"))
+
+
+class EquipmentTypeSuggestionsViewTests(EquipmentViewsTestCase):
+    def test_requires_login(self):
+        self.client.logout()
+        response = self.client.get(reverse("equipment:type_suggestions"))
+        self.assertEqual(response.status_code, 302)
+
+    def test_groups_types_seen_with_the_given_brand_first(self):
+        other_type = EquipmentType.objects.create(
+            name="Тестомес", category=EquipmentType.Category.KITCHEN
+        )
+        response = self.client.get(
+            reverse("equipment:type_suggestions"), {"brand": self.brand.name}
+        )
+        content = response.content.decode()
+        self.assertIn("Характерно для Rational", content)
+        self.assertIn(self.equipment_type.name, content)
+        self.assertIn(other_type.name, content)
+        # The characteristic type should be listed before the unrelated one.
+        self.assertLess(
+            content.index(self.equipment_type.name), content.index(other_type.name)
+        )
+
+    def test_unknown_brand_returns_flat_list_without_grouping(self):
+        response = self.client.get(
+            reverse("equipment:type_suggestions"), {"brand": "Совсем новый бренд"}
+        )
+        content = response.content.decode()
+        self.assertNotIn("Характерно для", content)
+        self.assertIn(self.equipment_type.name, content)
+
+    def test_new_brand_sentinel_returns_flat_list(self):
+        response = self.client.get(
+            reverse("equipment:type_suggestions"), {"brand": "__new__"}
+        )
+        content = response.content.decode()
+        self.assertNotIn("Характерно для", content)
+
+    def test_marks_the_currently_selected_type_as_selected(self):
+        response = self.client.get(
+            reverse("equipment:type_suggestions"),
+            {"brand": self.brand.name, "equipment_type": self.equipment_type.name},
+        )
+        content = response.content.decode()
+        self.assertIn(f'value="{self.equipment_type.name}" selected', content)
+
+    def test_jumps_to_top_suggestion_when_previous_type_is_unrelated_to_brand(self):
+        unrelated_type = EquipmentType.objects.create(
+            name="Аппарат", category=EquipmentType.Category.HOUSEHOLD
+        )
+        response = self.client.get(
+            reverse("equipment:type_suggestions"),
+            {"brand": self.brand.name, "equipment_type": unrelated_type.name},
+        )
+        content = response.content.decode()
+        self.assertIn(f'value="{self.equipment_type.name}" selected', content)
+        self.assertNotIn(f'value="{unrelated_type.name}" selected', content)
+
+    def test_always_includes_the_new_type_option(self):
+        response = self.client.get(reverse("equipment:type_suggestions"))
+        self.assertContains(response, "+ Новый тип оборудования")

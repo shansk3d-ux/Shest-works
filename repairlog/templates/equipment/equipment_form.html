@@ -13,15 +13,15 @@
 
     {% include "core/_single_form_field.html" with field=form.client %}
 
+    {% include "core/_single_form_field.html" with field=form.brand %}
+    <div id="brand-new-fields" class="{% if form.brand.value != "__new__" %}d-none{% endif %}">
+        {% include "core/_single_form_field.html" with field=form.brand_new_name %}
+    </div>
+
     {% include "core/_single_form_field.html" with field=form.equipment_type %}
     <div id="equipment-type-new-fields" class="{% if form.equipment_type.value != "__new__" %}d-none{% endif %}">
         {% include "core/_single_form_field.html" with field=form.equipment_type_new_name %}
         {% include "core/_single_form_field.html" with field=form.equipment_type_category %}
-    </div>
-
-    {% include "core/_single_form_field.html" with field=form.brand %}
-    <div id="brand-new-fields" class="{% if form.brand.value != "__new__" %}d-none{% endif %}">
-        {% include "core/_single_form_field.html" with field=form.brand_new_name %}
     </div>
 
     {% include "core/_single_form_field.html" with field=form.model %}

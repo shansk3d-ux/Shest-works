@@ -1,4 +1,5 @@
 from django import forms
+from django.urls import reverse
 
 from apps.core.forms import BootstrapModelForm
 
@@ -10,6 +11,8 @@ NEW_BRAND_LABEL = "+ Новый бренд…"
 
 
 class EquipmentForm(BootstrapModelForm):
+    brand = forms.ChoiceField(label="Бренд")
+    brand_new_name = forms.CharField(label="Название нового бренда", required=False)
     equipment_type = forms.ChoiceField(label="Тип оборудования")
     equipment_type_new_name = forms.CharField(
         label="Название нового типа", required=False
@@ -19,18 +22,16 @@ class EquipmentForm(BootstrapModelForm):
         choices=EquipmentType.Category.choices,
         required=False,
     )
-    brand = forms.ChoiceField(label="Бренд")
-    brand_new_name = forms.CharField(label="Название нового бренда", required=False)
 
     class Meta:
         model = Equipment
         fields = [
             "client",
+            "brand",
+            "brand_new_name",
             "equipment_type",
             "equipment_type_new_name",
             "equipment_type_category",
-            "brand",
-            "brand_new_name",
             "model",
             "serial_number",
             "year",
@@ -44,13 +45,22 @@ class EquipmentForm(BootstrapModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        type_choices = [(t.name, t.name) for t in EquipmentType.objects.order_by("name")]
-        type_choices.append((NEW_OPTION_VALUE, NEW_TYPE_LABEL))
-        self.fields["equipment_type"].choices = type_choices
-
         brand_choices = [(b.name, b.name) for b in Brand.objects.order_by("name")]
         brand_choices.append((NEW_OPTION_VALUE, NEW_BRAND_LABEL))
         self.fields["brand"].choices = brand_choices
+        self.fields["brand"].widget.attrs.update(
+            {
+                "hx-get": reverse("equipment:type_suggestions"),
+                "hx-trigger": "change, load",
+                "hx-target": "#id_equipment_type",
+                "hx-swap": "innerHTML",
+                "hx-include": "#id_equipment_type",
+            }
+        )
+
+        type_choices = [(t.name, t.name) for t in EquipmentType.objects.order_by("name")]
+        type_choices.append((NEW_OPTION_VALUE, NEW_TYPE_LABEL))
+        self.fields["equipment_type"].choices = type_choices
 
         if self.instance.pk:
             self.initial["equipment_type"] = self.instance.equipment_type.name
@@ -58,6 +68,22 @@ class EquipmentForm(BootstrapModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+
+        brand_value = cleaned_data.get("brand")
+        resolved_brand = None
+        if brand_value == NEW_OPTION_VALUE:
+            new_brand_name = (cleaned_data.get("brand_new_name") or "").strip()
+            if not new_brand_name:
+                self.add_error("brand_new_name", "Введите название нового бренда.")
+            else:
+                resolved_brand = Brand.objects.filter(name__iexact=new_brand_name).first()
+                if not resolved_brand:
+                    resolved_brand = Brand.objects.create(name=new_brand_name)
+        elif brand_value:
+            resolved_brand = Brand.objects.filter(name=brand_value).first()
+        cleaned_data["brand"] = resolved_brand
+        if resolved_brand is None and not self.errors.get("brand_new_name"):
+            self.add_error("brand", "Выберите бренд.")
 
         type_value = cleaned_data.get("equipment_type")
         resolved_type = None
@@ -88,21 +114,5 @@ class EquipmentForm(BootstrapModelForm):
         )
         if resolved_type is None and not type_subfield_errors:
             self.add_error("equipment_type", "Выберите тип оборудования.")
-
-        brand_value = cleaned_data.get("brand")
-        resolved_brand = None
-        if brand_value == NEW_OPTION_VALUE:
-            new_brand_name = (cleaned_data.get("brand_new_name") or "").strip()
-            if not new_brand_name:
-                self.add_error("brand_new_name", "Введите название нового бренда.")
-            else:
-                resolved_brand = Brand.objects.filter(name__iexact=new_brand_name).first()
-                if not resolved_brand:
-                    resolved_brand = Brand.objects.create(name=new_brand_name)
-        elif brand_value:
-            resolved_brand = Brand.objects.filter(name=brand_value).first()
-        cleaned_data["brand"] = resolved_brand
-        if resolved_brand is None and not self.errors.get("brand_new_name"):
-            self.add_error("brand", "Выберите бренд.")
 
         return cleaned_data
