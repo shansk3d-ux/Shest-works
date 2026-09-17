@@ -298,6 +298,24 @@ class RepairDetailViewTests(RepairViewsTestCase):
         self.assertContains(response, "Счёт выставлен")
 
 
+class RepairNalogButtonTests(RepairViewsTestCase):
+    def test_list_offers_nalog_button(self):
+        response = self.client.get(reverse("repairs:list"))
+        self.assertContains(response, "nalog-btn")
+
+    def test_detail_nalog_button_carries_the_clients_inn(self):
+        self.client_obj.inn = "770708389431"
+        self.client_obj.save(update_fields=["inn"])
+        repair = Repair.objects.create(
+            equipment=self.equipment,
+            master=self.user,
+            reported_at=timezone.localdate(),
+            symptom="Не набирает температуру",
+        )
+        response = self.client.get(reverse("repairs:detail", args=[repair.pk]))
+        self.assertContains(response, 'data-inn="770708389431"')
+
+
 class RepairInvoiceToggleViewTests(RepairViewsTestCase):
     def setUp(self):
         super().setUp()

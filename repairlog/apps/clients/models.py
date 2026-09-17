@@ -1,3 +1,4 @@
+from django.core.validators import RegexValidator
 from django.db import models
 
 from apps.core.models import TimeStampedModel
@@ -14,6 +15,17 @@ class Client(TimeStampedModel):
         max_length=20,
         choices=ClientType.choices,
         default=ClientType.INDIVIDUAL,
+    )
+    inn = models.CharField(
+        "ИНН",
+        max_length=12,
+        blank=True,
+        validators=[
+            RegexValidator(
+                r"^(\d{10}|\d{12})$",
+                "ИНН — это 10 цифр у организации или 12 цифр у физлица и ИП.",
+            )
+        ],
     )
     phone = models.CharField("Телефон", max_length=32, blank=True)
     email = models.EmailField("E-mail", blank=True)

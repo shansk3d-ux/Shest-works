@@ -25,6 +25,10 @@
 </div>
 
 <dl class="row">
+    <dt class="col-sm-3">ИНН</dt>
+    <dd class="col-sm-9">
+        {% if client.inn %}{{ client.inn }}{% else %}<span class="text-muted">не указан</span>{% endif %}
+    </dd>
     <dt class="col-sm-3">Телефон</dt>
     <dd class="col-sm-9">
         {% if client.phone %}{{ client.phone }}{% else %}<span class="text-muted">не указан</span>{% endif %}

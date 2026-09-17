@@ -59,6 +59,45 @@ class ClientDetailViewTests(ClientViewsTestCase):
         self.assertNotContains(response, "write-max-btn")
 
 
+class ClientInnTests(ClientViewsTestCase):
+    def test_detail_shows_inn_when_set(self):
+        self.client_obj.inn = "770708389431"
+        self.client_obj.save(update_fields=["inn"])
+        response = self.client.get(reverse("clients:detail", args=[self.client_obj.pk]))
+        self.assertContains(response, "770708389431")
+        self.assertContains(response, 'data-inn="770708389431"')
+
+    def test_detail_offers_nalog_button_without_inn_to_copy(self):
+        response = self.client.get(reverse("clients:detail", args=[self.client_obj.pk]))
+        self.assertContains(response, "nalog-btn")
+        self.assertNotContains(response, "data-inn=")
+
+    def test_saves_inn_from_the_form(self):
+        self.client.post(
+            reverse("clients:update", args=[self.client_obj.pk]),
+            {
+                "name": self.client_obj.name,
+                "client_type": Client.ClientType.ORGANIZATION,
+                "inn": "7707083893",
+            },
+        )
+        self.client_obj.refresh_from_db()
+        self.assertEqual(self.client_obj.inn, "7707083893")
+
+    def test_rejects_an_inn_that_is_not_10_or_12_digits(self):
+        response = self.client.post(
+            reverse("clients:update", args=[self.client_obj.pk]),
+            {
+                "name": self.client_obj.name,
+                "client_type": Client.ClientType.ORGANIZATION,
+                "inn": "12345",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.client_obj.refresh_from_db()
+        self.assertEqual(self.client_obj.inn, "")
+
+
 class ClientCreateViewTests(ClientViewsTestCase):
     def test_creates_client_and_redirects_to_detail(self):
         response = self.client.post(
